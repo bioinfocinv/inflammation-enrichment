@@ -1,0 +1,86 @@
+Gene_or_gene_product	HGNC_symbol	Main_function
+MDR1	ABCB1	Xenobiotic transport
+AIRE	AIRE	Central tolerance
+	ALOX15	Specialized pro-resolving mediators
+	ALOX5	Specialized pro-resolving mediators
+Serum amyloid P	APCS	Clearance of apoptotic debris
+	APOE	Resolution macrophages / efferocytosis
+	AXL	Resolution macrophages / efferocytosis
+	BCL3	Negative-feedback regulators
+Btk	BTK	B-cell signaling
+C1q	C1QA	Complement clearance
+C1q	C1QB	Complement clearance
+C1q	C1QC	Complement clearance
+C2	C2	Complement
+C4	C4A	Complement
+C4	C4B	Complement
+	CASP1	Inflammasome and inflammatory cell death (pyroptosis)
+Caspase-8	CASP8	Death receptor signaling
+Cbl	CBL	Ubiquitination
+	CD36	Resolution macrophages / efferocytosis
+p21	CDKN1A	Cell-cycle control
+	CMKLR1	Specialized pro-resolving mediators
+CTLA4	CTLA4	T-cell inhibition
+p22phox	CYBA	NADPH oxidase
+gp91phox	CYBB	NADPH oxidase
+	CYLD	Negative-feedback regulators
+DNase I	DNASE1	Clearance of extracellular DNA
+	DUSP1	Negative-feedback regulators
+Fas (CD95)	FAS	Apoptosis
+Fas ligand	FASLG	Apoptosis
+Foxp3*	FOXP3	Regulatory T cells
+	FPR2	Specialized pro-resolving mediators
+GADD45α	GADD45A	Stress response
+	GAS6	Resolution macrophages / efferocytosis
+Gαi2	GNAI2	GPCR signaling
+Heme oxygenase-1	HMOX1	Oxidative stress protection
+IFN-γ receptor 1	IFNGR1	Macrophage activation
+IFN-γ receptor 2	IFNGR2	Macrophage activation
+IKKβ	IKBKB	NF-κB pathway
+NEMO	IKBKG	NF-κB pathway
+IL-10	IL10	Anti-inflammatory cytokine
+IL-10 receptor (α subunit)	IL10RA	IL-10 signaling
+IL-10 receptor (β subunit)	IL10RB	IL-10 signaling
+	IL18	Inflammasome and inflammatory cell death (pyroptosis)
+IL-1 receptor antagonist	IL1RN	IL-1 inhibition
+SHIP	INPP5D	PI3K regulation
+CD11a	ITGAL	Leukocyte adhesion
+CD11b	ITGAM	Leukocyte adhesion
+CD18 (β2 integrin)	ITGB2	Leukocyte adhesion
+	LRP1	Resolution macrophages / efferocytosis
+Lyn	LYN	Src-family kinase
+Pyrin	MEFV	Inflammasome and inflammatory cell death (pyroptosis)
+Mer receptor	MERTK	Phagocytosis of apoptotic cells
+Milk fat globule EGF factor 8	MFGE8	Resolution macrophages / efferocytosis
+p47phox	NCF1	NADPH oxidase / Oxidative homeostasis
+p67phox	NCF2	NADPH oxidase
+NFATp	NFATC2	T-cell regulation
+NFAT4	NFATC3	T-cell regulation
+	NFE2L2	Oxidative homeostasis
+NF-κB1	NFKB1	NF-κB signaling
+IκBα	NFKBIA	NF-κB inhibition
+Cryopyrin	NLRP3	Inflammasome and inflammatory cell death (pyroptosis)
+NOD2	NOD2	Pattern recognition
+PECAM-1	PECAM1	Leukocyte trafficking
+	PLA2G4A	Specialized pro-resolving mediators
+	PSTPIP1	Immune system and signaling pathways
+PTEN	PTEN	PI3K regulation
+SHP-1	PTPN6	Negative signaling
+	PYCARD	Inflammasome and inflammatory cell death (pyroptosis)
+RelB	RELB	NF-κB transcription factor
+E-selectin ligand	SELPLG	Leukocyte rolling
+C1 inhibitor	SERPING1	Complement regulation
+NRAMP1	SLC11A1	Macrophage antimicrobial activity
+	SOCS1	Negative-feedback regulators
+	SOCS3	Negative-feedback regulators
+	SOD2	Oxidative homeostasis
+	STAB1	Resolution macrophages / efferocytosis
+STAT1	STAT1	IFN signaling
+T-bet	TBX21	Th1 differentiation
+TGF-β1	TGFB1	Immune suppression
+	TIMD4	Resolution macrophages / efferocytosis
+	TNFAIP3	Negative-feedback regulators
+TNF receptor 1	TNFRSF1A	TNF signaling
+	TNIP1	Negative-feedback regulators
+WASP	WAS	Cytoskeletal regulation
+Tristetraprolin	ZFP36	TNF mRNA decay

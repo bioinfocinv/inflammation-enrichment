@@ -1,0 +1,86 @@
+Gene_or_gene_product	HGNC_symbol	Main_function	uniprotswissprot	genecards
+MDR1	ABCB1	Xenobiotic transport	P08183	40
+AIRE	AIRE	Central tolerance	O43918	360
+	ALOX15	Specialized pro-resolving mediators	P16050	433
+	ALOX5	Specialized pro-resolving mediators	P09917	435
+Serum amyloid P	APCS	Clearance of apoptotic debris	P02743	584
+	APOE	Resolution macrophages / efferocytosis	P02649	613
+	AXL	Resolution macrophages / efferocytosis	P30530	905
+	BCL3	Negative-feedback regulators	P20749	998
+Btk	BTK	B-cell signaling	Q06187	1133
+C1q	C1QA	Complement clearance	P02745	1241
+C1q	C1QB	Complement clearance	NA	NA
+C1q	C1QC	Complement clearance	P02747	1245
+C2	C2	Complement	P06681	1248
+C4	C4A	Complement	P0C0L4	1323
+C4	C4B	Complement	P0C0L5	1324
+	CASP1	Inflammasome and inflammatory cell death (pyroptosis)	P29466	1499
+Caspase-8	CASP8	Death receptor signaling	Q14790	1509
+Cbl	CBL	Ubiquitination	P22681	1541
+	CD36	Resolution macrophages / efferocytosis	P16671	1663
+p21	CDKN1A	Cell-cycle control	P38936	1784
+	CMKLR1	Specialized pro-resolving mediators	Q99788	2121
+CTLA4	CTLA4	T-cell inhibition	P16410	2505
+p22phox	CYBA	NADPH oxidase	P13498	2577
+gp91phox	CYBB	NADPH oxidase	P04839	2578
+	CYLD	Negative-feedback regulators	Q9NQC7	2584
+DNase I	DNASE1	Clearance of extracellular DNA	P24855	2956
+	DUSP1	Negative-feedback regulators	P28562	3064
+Fas (CD95)	FAS	Apoptosis	P25445	11920
+Fas ligand	FASLG	Apoptosis	P48023	11936
+Foxp3*	FOXP3	Regulatory T cells	Q9BZS1	6106
+	FPR2	Specialized pro-resolving mediators	P25090	3827
+GADD45α	GADD45A	Stress response	P24522	4095
+	GAS6	Resolution macrophages / efferocytosis	Q14393	4168
+Gαi2	GNAI2	GPCR signaling	P04899	4385
+Heme oxygenase-1	HMOX1	Oxidative stress protection	P09601	5013
+IFN-γ receptor 1	IFNGR1	Macrophage activation	P15260	5439
+IFN-γ receptor 2	IFNGR2	Macrophage activation	P38484	5440
+IKKβ	IKBKB	NF-κB pathway	O14920	5960
+NEMO	IKBKG	NF-κB pathway	Q9Y6K9	5961
+IL-10	IL10	Anti-inflammatory cytokine	P22301	5962
+IL-10 receptor (α subunit)	IL10RA	IL-10 signaling	Q13651	5964
+IL-10 receptor (β subunit)	IL10RB	IL-10 signaling	Q08334	5965
+	IL18	Inflammasome and inflammatory cell death (pyroptosis)	Q14116	5986
+IL-1 receptor antagonist	IL1RN	IL-1 inhibition	P18510	6000
+SHIP	INPP5D	PI3K regulation	Q92835	6079
+CD11a	ITGAL	Leukocyte adhesion	P20701	6148
+CD11b	ITGAM	Leukocyte adhesion	P11215	6149
+CD18 (β2 integrin)	ITGB2	Leukocyte adhesion	P05107	6155
+	LRP1	Resolution macrophages / efferocytosis	Q07954	6692
+Lyn	LYN	Src-family kinase	P07948	6735
+Pyrin	MEFV	Inflammasome and inflammatory cell death (pyroptosis)	O15553	6998
+Mer receptor	MERTK	Phagocytosis of apoptotic cells	Q12866	7027
+Milk fat globule EGF factor 8	MFGE8	Resolution macrophages / efferocytosis	Q08431	7036
+p47phox	NCF1	NADPH oxidase / Oxidative homeostasis	P14598	7660
+p67phox	NCF2	NADPH oxidase	P19878	7661
+NFATp	NFATC2	T-cell regulation	Q13469	7776
+NFAT4	NFATC3	T-cell regulation	Q12968	7777
+	NFE2L2	Oxidative homeostasis	Q16236	7782
+NF-κB1	NFKB1	NF-κB signaling	P19838	7794
+IκBα	NFKBIA	NF-κB inhibition	P25963	7797
+Cryopyrin	NLRP3	Inflammasome and inflammatory cell death (pyroptosis)	NA	NA
+NOD2	NOD2	Pattern recognition	Q9HC29	5331
+PECAM-1	PECAM1	Leukocyte trafficking	P16284	8823
+	PLA2G4A	Specialized pro-resolving mediators	P47712	9035
+	PSTPIP1	Immune system and signaling pathways	O43586	9580
+PTEN	PTEN	PI3K regulation	P60484	9588
+SHP-1	PTPN6	Negative signaling	P29350	9658
+	PYCARD	Inflammasome and inflammatory cell death (pyroptosis)	Q9ULZ3	16608
+RelB	RELB	NF-κB transcription factor	Q01201	9956
+E-selectin ligand	SELPLG	Leukocyte rolling	Q14242	10722
+C1 inhibitor	SERPING1	Complement regulation	P05155	1228
+NRAMP1	SLC11A1	Macrophage antimicrobial activity	P49279	10907
+	SOCS1	Negative-feedback regulators	O15524	19383
+	SOCS3	Negative-feedback regulators	O14543	19391
+	SOD2	Oxidative homeostasis	P04179	11180
+	STAB1	Resolution macrophages / efferocytosis	Q9NY15	18628
+STAT1	STAT1	IFN signaling	P42224	11362
+T-bet	TBX21	Th1 differentiation	Q9UL17	11599
+TGF-β1	TGFB1	Immune suppression	P01137	11766
+	TIMD4	Resolution macrophages / efferocytosis	Q96H15	25132
+	TNFAIP3	Negative-feedback regulators	P21580	11896
+TNF receptor 1	TNFRSF1A	TNF signaling	P19438	11916
+	TNIP1	Negative-feedback regulators	Q15025	16903
+WASP	WAS	Cytoskeletal regulation	P42768	12731
+Tristetraprolin	ZFP36	TNF mRNA decay	P26651	12862
