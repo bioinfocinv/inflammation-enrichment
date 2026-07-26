@@ -13,19 +13,19 @@ suppressMessages(library(magrittr)) #pipes %>%
 suppressMessages(library(ggplot2)) #plotting
 suppressMessages(library(patchwork)) #side-by-side plotting
 suppressMessages(library(RColorBrewer)) #color palettes
+suppressMessages(library(pals)) #more colors
 suppressWarnings(library(colorspace)) #color gradients
 suppressMessages(library(biomaRt)) #ensembl convertion
-suppressMessages(library(UniprotR)) #UniprotKB interface
 suppressMessages(library(clusterProfiler)) #KEGG enrichment
 suppressMessages(library(enrichplot)) #enrichment plots
 suppressMessages(library(KEGGREST)) #KEGG id conversion
 suppressMessages(library(KEGGgraph)) #KEGG network
-suppressMessages(library(Rgraphviz)) #graph subset and merge
+suppressMessages(library(Rgraphviz)) #graph viz
 ```
 
 ## A set of inflammatory genes
 
-Convert the initial set of genes (HGNC IDs, n = 85).
+Convert the initial set of genes using the HGNC symbols (n = 85).
 
 ```{r convert}
 # Connect to the human Ensembl database
@@ -40,123 +40,92 @@ genes_list <- genes_file %>% pull(HGNC_symbol)
 # Map query genes to get IDs from Uniprot and GeneCards
 genes_query <- getBM(attributes = c("hgnc_symbol", "uniprotswissprot", "genecards"), #reactome, go_id..
                      filter = "hgnc_symbol", values = genes_list, mart = ensembl)
+```
 
+We check if some genes are missing after convertion for manual curation, then save results to file.
+
+```{r check}
 # Filter empty rows and print results
 genes_query <- genes_query %>% filter(uniprotswissprot != "")
 print(genes_query)
 
-# Check if some genes are missing..
 print(genes_file[which(!(genes_file$HGNC_symbol %in% genes_query$hgnc_symbol)), ])
-
-# Save results to file
 genes_query <- full_join(genes_file, genes_query, by = join_by(HGNC_symbol == hgnc_symbol))
 #write.table(genes_query, "output.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
 ```
 
-First, we need to curate the list. This will allow us to update our internal dataset by updating Sheet nº2 in the following file: https://docs.google.com/spreadsheets/d/1DkwHyp2xs9bxtTHlldugihmQJX4yX36Zi3WXIjvqDoM/edit?gid=1315050263#gid=1315050263.
+This step will allow us to update our internal dataset by updating Sheet nº2 in the following file: https://docs.google.com/spreadsheets/d/1DkwHyp2xs9bxtTHlldugihmQJX4yX36Zi3WXIjvqDoM/edit?usp=sharing.
 
-## Retrieve info from UniprotKB
+## KEGG enrichment analysis
 
-```{r uniprot}
-# UniprotKB
-#https://csdaw.github.io/uniprotREST/
+The curated_genes.tsv file contains a preprocessed list of inflammatory genes annotated with UniProt and GeneCards identifiers. The UniProt IDs are then used to retrieve the corresponding KEGG IDs, useful for enrichment analyses.
 
-# Define the MEFV UniProt Accession ID
-#mefv_id <- c("O15553")
-
-# 1. Get General Protein Function (GeneCards equivalent description)
-#mefv_function <- GetProteinFunction(ProteinAccList = mefv_id)
-
-# 2. Get Biological Processes and Pathways
-#mefv_pathways <- GetPathways_FunctionalAnnotation(ProteinAccList = mefv_id)
-
-# 3. Get Associated Diseases (e.g., Familial Mediterranean Fever)
-#mefv_diseases <- GetDiseases_Keywords(ProteinAccList = mefv_id)
-
-# GO terms
-# 1. Fetch GO terms from UniProt
-#mefv_go <- GetExpression(ProteinAccList = mefv_id)
-
-# 2. Automatically plot the GO terms
-# This generates charts highlighting its role in inflammation, the inflammasome, and the cytosol
-#Plot.Ontology(mefv_go)
-```
-
-## KEGG enrichment analysis (clusterProfiler)
-
-```{r keggenrichcp}
-# Read previously curated list of inflammatory genes
+```{r keggread}
+# Read the curated list of genes
 genes_file <- read.csv("enrichKEGG/data/curated_genes.tsv", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 genes_uniprot <- genes_file %>% pull(uniprot)
 print(length(genes_uniprot))
 
 # Database version: Last update 2026/07/13
-cat(readLines("https://rest.kegg.jp/info/pathway/"))
+cat(readLines("https://rest.kegg.jp/info/pathway/")[[3]])
+```
 
-# Perform Over-Representation Analysis (ORA) using Uniprot IDs
+### clusterProfiler
+
+We perform a Over-Representation Analysis (ORA) using the Uniprot IDs.
+
+```{r keggclus}
+# Run enrichment
 kegg_res <- enrichKEGG(gene = genes_uniprot, organism = "hsa", keyType = "uniprot",
                        pvalueCutoff = 0.05, pAdjustMethod = "BH", qvalueCutoff = 0.05)
+```
 
+Create some plots to explore the enrichment.
+
+```{r plotclus}
 # Plot enriched dotplot
 #use: label_format = funlab
-#x = ~ -log(p.adjust), 
+#x = ~ -log(p.adjust),
+#check in output: only pathways or phenotypes?
 dotplot(kegg_res, showCategory = 20, font.size = 10)
 
 # Plot barplot
-#kegg_res %>%
-#  mutate(qscore = -log(p.adjust, base = 10)) %>%
-#  barplot(x = "qscore", font.size = 10)
+kegg_res %>%
+  mutate(qscore = -log(p.adjust, base = 10)) %>%
+  barplot(x = "qscore", showCategory = 20, font.size = 10)
 
-# Plot pathways map
-kegg_simmat <- pairwise_termsim(kegg_res, method = "JC")
-emapplot(kegg_simmat, showCategory = 20)
-
-# Plot tree
-#treeplot(kegg_simmat, showCategory = 20, geneClusterPanel = "pie",
-#         cex_category = 0.5, offset_tiplab = 10, pie = "Count")
-
-##---Check in output only pathways or phenotypes?
-
-# Results post-processing
-# Custom function to convert ratio strings (e.g., "10/100") to numeric decimals
-#parse_ratio <- function(ratio_str) {
-#  sapply(ratio_str, function(x) {
-#    nums <- as.numeric(strsplit(x, "/")[[1]])
-#    return(nums[1] / nums[2])
-#  })
-#}
-
-# Filter for pathways where enrichment is at least 3-fold higher than background
-#ego_filtered <- ego %>%
-#  mutate(
-#    GeneRatio_num = parse_ratio(GeneRatio),
-#    BgRatio_num = parse_ratio(BgRatio),
-#    FoldChange = GeneRatio_num / BgRatio_num
-#  ) %>%
-#  filter(FoldChange >= 3.0)
-
-# Plot the high-fold-change pathways
-#dotplot(ego_filtered)
+# Plot the most significant terms and their relationships
+#kegg_simmat <- pairwise_termsim(kegg_res, method = "JC")
+#ssplot(kegg_simmat)
 ```
 
-## KEGG enrichment analysis (manual curation)
+### Local enrichment
 
-```{r keggenrichmc}
-# First, convert list of genes from Uniprot IDs to KEGG IDs
+First, we convert list of genes from Uniprot IDs to KEGG IDs.
+
+```{r uni2keggid}
 kegg_genes <- bitr_kegg(geneID = genes_uniprot, fromType = "uniprot", toType = "kegg", organism = "hsa")
 
 # Check duplicated entries (genes associated with more than one KEGG ID)
 print(unique(kegg_genes$uniprot[duplicated(kegg_genes$uniprot)]))
 #kegg_genes <- kegg_genes %>% distinct(kegg, .keep_all = TRUE)
+```
 
+Our list now contains a total of 87 genes because two of them (P0C0L4 and P0C0L5) are associated with two KEGG IDs each.
+
+#### KEGG KO approach
+
+Next, we use those IDs to get the KEGG KOs.
+
+```{r id2ko}
 # Append organism prefix to each entry
 genes_map <- kegg_genes %>% pull(kegg)
 genes_map <- append(genes_map, list(paste0("hsa:", genes_map)))
 genes_map <- unlist(tail(genes_map, 1)) #keep last position
+head(genes_map)
 
-# Convert KEGG IDs to KOs
-#https://www.genome.jp/dbget-bin/www_bget?hsa:721
-kegg_kos <- keggLink(target = "ko", source = genes_map)
+# Convert KEGG IDs to KOs -> https://www.genome.jp/dbget-bin/www_bget?hsa:721
+kegg_kos <- keggLink("ko", genes_map)
 
 # Check duplicated entries
 print(kegg_kos[duplicated(kegg_kos)])
@@ -164,120 +133,366 @@ print(kegg_kos[duplicated(kegg_kos)])
 # Create table and export it to file
 kegg_id_ko <- tibble(ID = names(kegg_kos), KO = unname(kegg_kos))
 kegg_id_ko <- kegg_id_ko %>%
-  dplyr::mutate(ID = str_replace(ID, "hsa:", ""),
+  dplyr::mutate(ID = str_replace(ID, "hsa:", ""), #remove prefix
                 KO = str_replace(KO, "ko:", ""))
 #write.table(kegg_id_ko, "enrichKEGG/data/KEGG_id2ko.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+```
 
-# Map pathway names based on KOs
+Among these, the same KO (K03989) is assigned to two different KEGG IDs, both corresponding to complement component 4 (C4; C4A and C4B). So, we have 84 unique KOs.
+The next step is to map the KEGG pathways based on the converted KOs to determine which pathways are represented by our set of genes.
+
+```{r mapkos}
 kegg_ko_path <- keggLink("pathway", kegg_kos)
 kegg_data <- tibble(KO = names(kegg_ko_path), pathway = unname(kegg_ko_path))
 
 # Which KOs are missing? (not associated with any pathway)
-print(length(unique(kegg_data$KO))) #81
 print(kegg_kos[!kegg_kos %in% kegg_data$KO])
+print(length(unique(kegg_data$KO))) #81
+```
 
+We observe that three KOs (K04245, K11994, and K23267) are not associated with any KEGG pathway, and were therefore excluded from the pathway-based analysis. This reduces the set to 81 KOs.
+
+```{r ko2path}
 # Modify and filter columns
 kegg_data <- kegg_data %>%
   dplyr::mutate(KO = str_replace(KO, "ko:", "")) %>%
   dplyr::mutate(pathway = str_replace(pathway, "path:map", "")) %>% #keep map?
   dplyr::filter(!grepl("ko", pathway))
 
-# Check the pathway names from the KEGG database v. 042022
-pathway_list <- read.csv("enrichKEGG/data/pathway.list.mod.tsv", sep = "\t", header = TRUE,
-                         colClasses = c("character", "character"), stringsAsFactors = FALSE)
-print(kegg_category[!(kegg_category$id %in% pathway_list$id), ]) #ie. 04148 --> Efferocytosis
+# Check the pathway names from the KEGG database (v.042022)
+#pathway_list <- read.csv("enrichKEGG/data/pathway.list.mod.tsv", sep = "\t", header = TRUE,
+#                         colClasses = c("character", "character"), stringsAsFactors = FALSE)
+#print(kegg_categories[!(kegg_categories$id %in% pathway_list$id), ]) #ie. 04148 --> Efferocytosis
 
-# Get KEGG pathway names from API to add them
+# Get KEGG pathway names from API
 kegg_categories <- clusterProfiler:::kegg_category_data()
 kegg_data <- left_join(kegg_data, kegg_categories, by = join_by(pathway == id))
 
-# Edit pathway name
+# Process NAs manually
+#https://www.kegg.jp/pathway/map<pathway>
+#https://www.genome.jp/kegg/docs/upd_kegg.html
+print(kegg_data %>% filter(is.na(name)) %>% distinct(pathway))
 kegg_data <- kegg_data %>%
-  dplyr::mutate(name = str_replace(name, "Efferocytosis New!", "Efferocytosis"))
-
-# Process NAs -> https://www.kegg.jp/pathway/map<pathway>
-#kegg_data %>% filter(is.na(name)) %>% distinct(pathway)
-kegg_data <- kegg_data %>%
+  dplyr::mutate(name = str_replace(name, "Efferocytosis New!", "Efferocytosis")) %>% #edit name
   dplyr::mutate(name = case_when(pathway == "04081" ~ "Hormone signaling",
                                  pathway == "04082" ~ "Neuroactive ligand signaling",
                                  pathway == "04517" ~ "IgSF CAM signaling",
                                  pathway == "04518" ~ "Integrin signaling",
                                  pathway == "04519" ~ "Cadherin signaling",
-                                 TRUE ~ name)) #subcategory, category
+                                 TRUE ~ name)) %>%
+  dplyr::mutate(subcategory = case_when(pathway == "04081" ~ "Signaling molecules and interaction",
+                                        pathway == "04082" ~ "Signaling molecules and interaction",
+                                        pathway == "04517" ~ "Signaling molecules and interaction",
+                                        pathway == "04518" ~ "Signaling molecules and interaction",
+                                        pathway == "04519" ~ "Signaling molecules and interaction",
+                                        TRUE ~ subcategory)) %>%
+  dplyr::mutate(category = case_when(pathway == "04081" ~ "Environmental Information Processing",
+                                     pathway == "04082" ~ "Environmental Information Processing",
+                                     pathway == "04517" ~ "Environmental Information Processing",
+                                     pathway == "04518" ~ "Environmental Information Processing",
+                                     pathway == "04519" ~ "Environmental Information Processing",
+                                     TRUE ~ category))
 
-# Get KO name? *** ej. K03989 -> C4; complement component 4
+#get KO name? *** ej. K03989 -> C4; complement component 4
+```
 
-# Plot pathways distribution
+We plot the global distribution of KEGG pathways.
+
+```{r plotdistko}
 kegg_data %>%
   dplyr::group_by(pathway, name) %>%
-  dplyr::summarise(count_p = table(pathway), .groups = "drop") %>%
-  dplyr::arrange(desc(count_p)) %>%
-  dplyr::slice(1:20) %>% #top 20
-  ggplot(aes(x = count_p, y = fct_reorder(name, count_p))) + #, fill = name
+  dplyr::summarise(n_path = table(pathway), .groups = "drop") %>%
+  dplyr::arrange(desc(n_path)) %>%
+  dplyr::slice(1:30) %>% #top 30
+  ggplot(aes(x = n_path, y = fct_reorder(name, n_path))) + #, fill = name
   geom_col(position = "dodge2", fill = "#459682") +
   #scale_fill_discrete_diverging(name = "", palette = "Purple-Green") +
-  geom_text(aes(label = count_p), vjust = 0.5, hjust = -0.25, size = 3) +
-  labs(title = "KEGG pathways distribution (top 20)", x = "# of pathways", y = "Pathway name") +
+  geom_text(aes(label = n_path), vjust = 0.5, hjust = -0.25, size = 3) +
+  labs(title = "KEGG pathways distribution (top 30)", x = "# of genes", y = "Pathway name") +
   theme_classic() +
   theme(legend.position = "none")
 
-# Calculate the enrichment-like ratio of genes per pathway
-kegg_enrichment <- kegg_data %>%
-  dplyr::group_by(KO, pathway, name) %>%
-  dplyr::summarise(n_paths = n(), .groups = "drop") %>% #separate by KOs
+# Set colors for subcategories
+colors_subcat <- brewer.dark2(length(unique(kegg_data$subcategory)))
+
+# Group by subcategory
+kegg_data %>%
+  dplyr::group_by(pathway, subcategory, name) %>%
+  dplyr::summarise(n_path = table(pathway), .groups = "drop") %>%
+  dplyr::arrange(desc(n_path)) %>%
+  dplyr::slice(1:30) %>% #top 30
+  ggplot(aes(x = n_path, y = fct_reorder(name, n_path), fill = subcategory)) +
+  geom_col(position = "dodge2") +
+  geom_text(aes(label = n_path), vjust = 0.5, hjust = -0.25, size = 3) +
+  scale_fill_manual(name = "Subcategory", values = colors_subcat) +
+  labs(title = "KEGG pathways per subcategory (top 30)", x = "# of genes", y = "Pathway name") +
+  theme_classic() +
+  theme(legend.box.spacing = unit(0.5, "pt"), #space between tree and legend
+        legend.key.spacing.x = unit(0.1, "pt"), #space between columns
+        legend.key.spacing.y = unit(0.1, "pt"), #space between rows
+        legend.spacing.y = unit(0.75, "pt"), #space between legend titles
+        legend.key.height = unit(3, units = "mm"),
+        legend.key.width = unit(4, units = "mm"))
+
+# Set colors for categories
+colors_cat <- colorRampPalette(brewer.pal(8, "Set2"))(length(unique(kegg_data$category)))
+
+# Group by subcategory
+kegg_data %>%
+  dplyr::group_by(pathway, category, name) %>%
+  dplyr::summarise(n_path = table(pathway), .groups = "drop") %>%
+  dplyr::arrange(desc(n_path)) %>%
+  dplyr::slice(1:30) %>% #top 30
+  ggplot(aes(x = n_path, y = fct_reorder(name, n_path), fill = category)) +
+  geom_col(position = "dodge2") +
+  geom_text(aes(label = n_path), vjust = 0.5, hjust = -0.25, size = 3) +
+  scale_fill_manual(name = "Category", values = colors_cat) +
+  labs(title = "KEGG pathways per category (top 30)", x = "# of genes", y = "Pathway name") +
+  theme_classic() +
+  theme(legend.box.spacing = unit(0.5, "pt"), #space between tree and legend
+        legend.key.spacing.x = unit(0.1, "pt"), #space between columns
+        legend.key.spacing.y = unit(0.1, "pt"), #space between rows
+        legend.spacing.y = unit(0.75, "pt"), #space between legend titles
+        legend.key.height = unit(3, units = "mm"),
+        legend.key.width = unit(4, units = "mm"))
+```
+
+At this point, the dataset comprises a total of 215 pathways. But, there are some pathways derived from ortholog genes belonging to other organisms. For instance, "MAPK signaling pathway - fly" (04013), "Meiosis - yeast" (04113), "Longevity regulating pathway - worm" (04212), or "Apoptosis - fly" (04214).
+
+#### KEGG ID approach
+
+Lets try with the mapping of KEGG pathways by using directly the IDs (skipping ortholog (KO) convertion)...
+
+```{r mapids}
+kegg_id2path <- keggLink("pathway", genes_map)
+kegg_data_id <- tibble(ID = names(kegg_id2path), pathway = unname(kegg_id2path))
+
+# Which KEGG IDs are missing? (not associated with any pathway)
+print(genes_map[!genes_map %in% kegg_data_id$ID])
+print(length(unique(kegg_data_id$ID))) #83
+```
+
+We observe the same three genes (1240: K04245, 1773: K11994, and 325: K23267) that are not associated with any KEGG pathway. This reduces the set to 83 KEGG IDs.
+
+```{r id2path}
+# Modify and filter columns
+kegg_data_id <- kegg_data_id %>%
+  dplyr::mutate(ID = str_replace(ID, "hsa:", "")) %>%
+  dplyr::mutate(pathway = str_replace(pathway, "path:hsa", ""))
+
+# Get KEGG pathway names from API
+kegg_data_id <- left_join(kegg_data_id, kegg_categories, by = join_by(pathway == id))
+
+# Curate NAs manually
+#https://www.kegg.jp/pathway/map<pathway>
+#https://www.genome.jp/kegg/docs/upd_kegg.html
+print(kegg_data_id %>% dplyr::filter(is.na(name)) %>% distinct(pathway))
+kegg_data_id <- kegg_data_id %>%
+  dplyr::mutate(name = str_replace(name, "Efferocytosis New!", "Efferocytosis")) %>% #edit name
+  dplyr::mutate(name = case_when(pathway == "04081" ~ "Hormone signaling",
+                                 pathway == "04082" ~ "Neuroactive ligand signaling",
+                                 pathway == "04517" ~ "IgSF CAM signaling",
+                                 pathway == "04518" ~ "Integrin signaling",
+                                 pathway == "04519" ~ "Cadherin signaling",
+                                 TRUE ~ name)) %>%
+  dplyr::mutate(subcategory = case_when(pathway == "04081" ~ "Signaling molecules and interaction",
+                                        pathway == "04082" ~ "Signaling molecules and interaction",
+                                        pathway == "04517" ~ "Signaling molecules and interaction",
+                                        pathway == "04518" ~ "Signaling molecules and interaction",
+                                        pathway == "04519" ~ "Signaling molecules and interaction",
+                                        TRUE ~ subcategory)) %>%
+  dplyr::mutate(category = case_when(pathway == "04081" ~ "Environmental Information Processing",
+                                     pathway == "04082" ~ "Environmental Information Processing",
+                                     pathway == "04517" ~ "Environmental Information Processing",
+                                     pathway == "04518" ~ "Environmental Information Processing",
+                                     pathway == "04519" ~ "Environmental Information Processing",
+                                     TRUE ~ category))
+```
+
+We plot the global distribution of KEGG pathways.
+
+```{r plotdistid}
+#, fig.width = 10, fig.height = 8, out.width = "100%"
+p1 <- kegg_data_id %>%
+  dplyr::group_by(pathway, name) %>%
+  dplyr::summarise(n = table(pathway), .groups = "drop") %>%
+  dplyr::arrange(desc(n)) %>%
+  dplyr::slice(1:30) %>% #top 30
+  ggplot(aes(x = n, y = fct_reorder(name, n))) + #, fill = name
+  geom_col(position = "dodge2", fill = "#459682") +
+  geom_text(aes(label = n), vjust = 0.5, hjust = -0.25, size = 3) +
+  labs(title = "KEGG pathways distribution (top 30)", x = "# of genes", y = "Pathway name") +
+  theme_classic() +
+  theme(legend.position = "none")
+
+# Set colors for subcategories
+colors_subcat <- brewer.dark2(length(unique(kegg_data_id$subcategory)))
+
+# Group by subcategory
+p2 <- kegg_data_id %>%
+  dplyr::group_by(pathway, subcategory, name) %>%
+  dplyr::summarise(n = table(pathway), .groups = "drop") %>%
+  dplyr::arrange(desc(n)) %>%
+  dplyr::slice(1:30) %>% #top 30
+  ggplot(aes(x = n, y = fct_reorder(name, n), fill = subcategory)) +
+  geom_col(position = "dodge2") +
+  geom_text(aes(label = n), vjust = 0.5, hjust = -0.25, size = 3) +
+  scale_fill_manual(name = "Subcategory", values = colors_subcat) +
+  labs(title = "KEGG pathways per subcategory (top 30)", x = "# of genes", y = "Pathway name") +
+  theme_classic() +
+  theme(legend.box.spacing = unit(0.5, "pt"), #space between tree and legend
+        legend.key.spacing.x = unit(0.1, "pt"), #space between columns
+        legend.key.spacing.y = unit(0.1, "pt"), #space between rows
+        legend.spacing.y = unit(0.75, "pt"), #space between legend titles
+        legend.key.height = unit(3, units = "mm"),
+        legend.key.width = unit(4, units = "mm"))
+
+# Set colors for categories
+colors_cat <- colorRampPalette(brewer.pal(8, "Set2"))(length(unique(kegg_data_id$category)))
+
+# Group by subcategory
+p3 <- kegg_data_id %>%
+  dplyr::group_by(pathway, category, name) %>%
+  dplyr::summarise(n = table(pathway), .groups = "drop") %>%
+  dplyr::arrange(desc(n)) %>%
+  dplyr::slice(1:30) %>% #top 30
+  ggplot(aes(x = n, y = fct_reorder(name, n), fill = category)) +
+  geom_col(position = "dodge2") +
+  geom_text(aes(label = n), vjust = 0.5, hjust = -0.25, size = 3) +
+  scale_fill_manual(name = "Category", values = colors_cat) +
+  labs(title = "KEGG pathways per category (top 30)", x = "# of genes", y = "Pathway name") +
+  theme_classic() +
+  theme(legend.box.spacing = unit(0.5, "pt"), #space between tree and legend
+        legend.key.spacing.x = unit(0.1, "pt"), #space between columns
+        legend.key.spacing.y = unit(0.1, "pt"), #space between rows
+        legend.spacing.y = unit(0.75, "pt"), #space between legend titles
+        legend.key.height = unit(3, units = "mm"),
+        legend.key.width = unit(4, units = "mm"))
+
+# Agglom. plots
+(p1 / p2 / p3) + plot_annotation(tag_levels = list(c("a", "b", "c")))
+ggsave("enrichKEGG/plots/plot_KEGG_pathways.png", height = 15, width = 7)
+```
+
+#### Enrichment
+
+We calculate the enrichment-like ratio of genes per pathway.
+
+```{r enrich}
+kegg_enrichment <- kegg_data_id %>%
+  dplyr::group_by(ID, pathway, name) %>% #separate by IDs
+  dplyr::summarise(n_paths = n(), .groups = "drop") %>%
   ungroup() %>%
   dplyr::group_by(pathway, name) %>%
-  dplyr::summarise(across(KO, \(x) paste(na.omit(x), collapse = ",")),
-                   count = n(), .groups = "drop") %>% #collapse KOs by pathway and count them
+  dplyr::summarise(across(ID, \(x) paste(na.omit(x), collapse = ",")),
+                   count = n(), .groups = "drop") %>% #collapse IDs by pathway and count them
   ungroup() %>%
-  dplyr::mutate(ratio = count / length(unique(kegg_data$KO))) #gene ratio is count / total genes
+  dplyr::rename(geneIDs = ID) %>%
+  dplyr::mutate(ratio = count / length(unique(kegg_data_id$ID))) #gene ratio is count/total genes
+```
 
-# Define a hypergeometric distribution to calculate the p-value
-# overlap between the gene set and the dataset
-#pvalue <- phyper(k-1, M, N-M, n, lower.tail = FALSE)
-# Use Fisher's exact test with correction methods, such as Bonferroni or false discovery rate (FDR)
-# It compares the observed distribution to the expected distribution under the null hypothesis of no enrichment
-# So, calculate manually the BgRatio (M and N)
+Download the complete KEGG human pathway-to-gene mapping.
 
-# Download the complete KEGG pathway-to-gene mapping
+```{r kegguniv}
 kegg_all_hsa <- keggLink("pathway", "hsa")
 kegg_mapping <- data.frame(gene_id = gsub("", "", names(kegg_all_hsa)), #hsa:
                            path_id = gsub("path:hsa", "", unname(kegg_all_hsa)))
-
-# Define the actual background universe
-kegg_bg_genes <- unique(kegg_mapping$gene_id)
-
-# Filter KEGG annotations to only include genes present in our universe
-kegg_map_filt <- kegg_mapping %>% dplyr::filter(gene_id %in% genes_map)
-
-# Calculate N (total unique annotated genes in our universe)
-bg_ratio_N <- length(unique(kegg_map_filt$gene_id))
-
-# Calculate M (per pathway)
-bg_ratios <- kegg_map_filt %>%
-  dplyr::group_by(path_id) %>%
-  dplyr::summarise(M = n_distinct(gene_id), N = bg_ratio_N, BgRatio = paste0(M, "/", N))
-
-# Dotplot of the local enrichment
-kegg_enrichment %>%
-  dplyr::arrange(desc(ratio)) %>%
-  dplyr::slice(1:20) %>% #top 20
-  ggplot(aes(x = ratio, y = fct_reorder(name, ratio))) +
-  geom_point(aes(size = ratio), color = "#7b4b8f", alpha = 0.85) + #color = p.adjust
-  scale_size(range = c(0, 10)) +
-  scale_x_continuous(limits = c(0.1, 0.3)) +
-  scale_y_discrete(expand = c(0.05, 0)) + #add y-axis space
-  #scale_color_gradient(low = "red", high = "blue", name = "p.adjust") +
-  #scale_size_continuous(name = "Gene Count") +
-  guides(size = "none") +
-  labs(title = "KEGG local enrichment (top 20)", x = "Gene (KO) ratio", y = "Pathway name") +
-  theme_bw()
-# add category, subcategory for facetting?
-
-# Plot top KOs per pathway (PCA?)
+print(length(unique(kegg_mapping$gene_id))) #total genes
 ```
 
-## KEGG pathway visualization
+We define the actual background universe of pathways and genes per pathway.
+
+```{r bgpath}
+# Define the total number of all unique genes in the background distribution
+bg_genes <- length(unique(kegg_mapping$gene_id)) #N
+kegg_map_path <- kegg_mapping %>%
+  dplyr::group_by(path_id) %>%
+  dplyr::summarise(M = n()) #number of genes in the background universe (per pathway)
+
+# Merge background data with the enrichment
+kegg_enrichment <- kegg_enrichment %>%
+  left_join(kegg_map_path, by = join_by(pathway == path_id)) %>%
+  dplyr::mutate(BgRatio = paste0(M, "/", bg_genes)) #calculate the BgRatio = M/N
+```
+
+Using the background universe, a hypergeometric distribution is applied to calculate the p-value. This statistical test evaluates the significance of the overlap between the gene set and the universe.
+
+```{r bgratio}
+# Define the number of genes in the gene set
+n_paths <- length(unique(kegg_data_id$pathway)) #n
+#phyper(k-1, M, N-M, n, lower.tail = FALSE)
+#use correction methods: such as Bonferroni or false discovery rate (FDR)
+kegg_enrichment <- kegg_enrichment %>%
+  dplyr::mutate(pvalue = phyper(count - 1, M, bg_genes - M, n_paths, lower.tail = FALSE)) %>%
+  dplyr::mutate(p.adjust = p.adjust(pvalue, method = "BH"))
+
+# Get and sort the significant pathways
+print(kegg_enrichment %>%
+        dplyr::filter(pvalue <= 0.05) %>%
+        dplyr::select(name, ratio, p.adjust) %>%
+        dplyr::arrange(desc(ratio)))
+```
+
+We create a dotplot of the local enrichment.
+
+```{r plotenrich}
+# Helper function to match the gradient colors
+#colors_legend <- scales::seq_gradient_pal(low = "red", high = "blue")(seq(0, 1, length.out = 3))
+
+p4 <- kegg_enrichment %>%
+  dplyr::arrange(desc(ratio)) %>%
+  dplyr::slice(1:30) %>% #top 30
+  ggplot(aes(x = ratio, y = fct_reorder(name, ratio))) +
+  geom_point(aes(size = count, color = p.adjust), alpha = 0.85) +
+  scale_y_discrete(expand = c(0.05, 0)) + #add y-axis space
+  scale_x_continuous(limits = c(0.1, 0.3)) +
+  scale_color_gradient(name = "p.adjust", low = "red", high = "blue") +
+  guides(size = guide_legend(title = "# genes", order = 1, reverse = TRUE,
+                             override.aes = list(color = "black", alpha = 0.85))) +
+  labs(title = "KEGG local enrichment (top 30)", x = "Gene ratio", y = "Pathway name") +
+  theme_classic() +
+  theme(legend.key.height = unit(3, units = "mm"),
+        legend.key.width = unit(4, units = "mm"))
+p4
+ggsave("enrichKEGG/plots/plot_KEGG_enrichment.png", height = 5, width = 7)
+```
+
+We process the genes from the enrichment analysis.
+
+```{r enrichgenes}
+kegg_engenes <- kegg_enrichment %>%
+  separate_longer_delim(cols = geneIDs, delim = ",") %>% #split 114548,1535,1536,29108,...,
+  group_by(geneIDs) %>%
+  summarise(genes = n()) %>%
+  left_join(kegg_data_id, by = join_by(geneIDs == ID)) #add KEGG data
+
+# Get gene mapping info
+#kegg_egenes_list <- kegg_egenes %>% distinct(geneIDs) %>% pull(geneIDs)
+
+# Plot top genes across pathways
+p5 <- kegg_engenes %>%
+  distinct(geneIDs, .keep_all = TRUE) %>% #collapse list
+  arrange(desc(genes)) %>%
+  dplyr::slice(1:30) %>% #top 30
+  ggplot(aes(x = genes, y = fct_reorder(geneIDs, genes))) +
+  geom_point(aes(size = genes), alpha = 0.75, color = "#e31a1c") +
+  scale_y_discrete(expand = c(0.025, 0)) + #add y-axis space
+  guides(size = "none") +
+  labs(title = "Inflammatory genes (more enriched, top 30)", x = "# of pathways", y = "KEGG ID") +
+  theme_classic() +
+  theme(legend.box.spacing = unit(0.5, "pt"), #space between tree and legend
+        legend.key.spacing.x = unit(0.1, "pt"), #space between columns
+        legend.key.spacing.y = unit(0.1, "pt"), #space between rows
+        legend.spacing.y = unit(0.75, "pt"), #space between legend titles
+        legend.key.height = unit(3, units = "mm"),
+        legend.key.width = unit(4, units = "mm"))
+p5
+ggsave("enrichKEGG/plots/plot_KEGG_key_genes.png", height = 5, width = 7)
+```
+
+## KEGG pathway
+
+Using KEGGgraph package, we explore and manipulate KEGG pathways in a graph-like approach.
 
 ```{r keggmapviz}
 # Read KEGG pathway file
@@ -370,14 +585,15 @@ plot(top_subg, "twopi", nodeAttrs = n_attrs, attrs = list(graph = list(start = 2
 # v2
 top_subg2 <- top_subg
 nodes(top_subg2) <- top_subgenes
-plot(top_subg2, "neato", attrs = list(node = list(fillcolor = "lightblue", font = 5)))
+plot(top_subg2, "twopi", attrs = list(node = list(fillcolor = "lightblue", font = 5)))
 
+## check -> https://www.kegg.jp/pathway/hsa04148
 ```
 
 ## Reactome pathway analysis
 
 ```{r reactome}
-library(ReactomePA)
+#library(ReactomePA)
 # Reactome Enrichment: gsePathway()
 
 ```
