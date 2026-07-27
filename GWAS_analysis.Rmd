@@ -1,0 +1,93 @@
+---
+title: "GWAS_analysis"
+author: "Moises A. Rojas"
+date: "27/07/2026"
+output:
+  html_document:
+    toc: true
+---
+
+```{r setup}
+suppressMessages(library(tidyverse)) #tidy ecosystem
+suppressMessages(library(magrittr)) #pipes %>%
+suppressMessages(library(ggplot2)) #plotting
+suppressMessages(library(patchwork)) #side-by-side plotting
+suppressMessages(library(RColorBrewer)) #color palettes
+suppressMessages(library(pals)) #more colors
+suppressWarnings(library(colorspace)) #color gradients
+suppressMessages(library(biomaRt)) #ensembl convertion
+suppressMessages(library(GenomicRanges)) #genomic positions
+suppressMessages(library(ontologyIndex)) #MONDO onthology
+```
+
+## GWAS data processing
+
+UK Biobank recruited participants: ~500,000 individuals
+Samples used after further QC: 487,442 individuals
+  Sample quality
+  Population structure
+  Relatedness filtering
+British ancestry subset: 409,728 individuals
+Data sources:
+  Questionnaires
+  Physical measurements
+  Biological samples
+  Blood samples
+  Genomic data
+
+# Load processed GWAS data
+
+We downloaded raw data from the UK GWAS database (github.com/Nealelab/UK_Biobank_GWAS). Specifically, we selected inflammatory phenotypes (n = 20) and used the 'both_sexes' statistics files. After, quality control (QC) of variants was performed by retaining only significant variants (p-value < 5x10^-8, MAF > 0.01 (1%), and low_confidence_variant = FALSE). Note that the variants are based on Ensembl GRCh37.
+
+```{r read}
+gwas_data <- read.csv("GWAS/data/gwas_merged_rs.tsv", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
+print(dim(gwas_data))
+
+# Parse phenotypes
+gwas_data <- gwas_data %>%
+  #filt_20002_1461.gwas.imputed_v3.both_sexes.tsv.gz.tsv -> 20002_1461
+  dplyr::mutate(phenotype = str_replace_all(phenotype, "filt_|.gwas.imputed_v3.both_sexes.tsv.gz.tsv", ""))
+head(gwas_data)
+```
+
+# Map variants to genes
+
+First, we connect to the human Ensembl database of SNPs.
+
+```{r mapgenes}
+#mart_genes <- useEnsembl(biomart = "snp", dataset = "hsapiens_snp", version = 116)
+mart_snps <- useMart("ENSEMBL_MART_SNP", dataset = "hsapiens_snp")
+
+# Create a list of reference SNPs ID (rsid)
+snps_list <- gwas_data %>% pull(rsid)
+
+# Query genes to get ensembl gene names
+snps_query <- getBM(attributes = c("refsnp_id", "phenotype_description", "ensembl_gene_name"),
+                    filters = "snp_filter", values = snps_list[1:100], mart = mart_snps) #rs59727397
+
+# Check annotations: many SNP do not map to any gene..
+snps_query %>% dplyr::filter(ensembl_gene_name == "")
+#snps_ensembl <- snps_query %>% pull(ensembl_gene_id)
+
+# Get gene name and description
+mart_genes <- useEnsembl("genes", dataset="hsapiens_gene_ensembl")
+snps_query2 <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "description"),
+                     filters = "ensembl_gene_id", values = "ENSG00000138892", mart = mart_genes)
+
+# Many GWAS variants are intergenic. For those, we use the nearest gene approach
+
+```
+
+# MONDO
+
+We use the R package ontologyIndex
+
+```{r mondo}
+mondo <- get_ontology("GWAS/data/mondo-simple.obo", extract_tags = "minimal")
+
+#mondo$name["MONDO:0004975"]
+#"Alzheimer disease" 
+#mondo$parents["MONDO:0004975"]
+#$`MONDO:0004975`
+
+```
