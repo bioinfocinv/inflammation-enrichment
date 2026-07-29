@@ -34,7 +34,7 @@ ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
 # Read file of selected genes as input
 genes_file <- read.csv("inflammation_genes.tsv", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 
-# Create to a list of genes
+# Create a list of genes
 genes_list <- genes_file %>% pull(HGNC_symbol)
 
 # Map query genes to get IDs from Uniprot and GeneCards
@@ -109,6 +109,9 @@ kegg_genes <- bitr_kegg(geneID = genes_uniprot, fromType = "uniprot", toType = "
 # Check duplicated entries (genes associated with more than one KEGG ID)
 print(unique(kegg_genes$uniprot[duplicated(kegg_genes$uniprot)]))
 #kegg_genes <- kegg_genes %>% distinct(kegg, .keep_all = TRUE)
+
+# Update the initial list with KEGG IDs
+genes_file <- left_join(genes_file, kegg_genes, by = "uniprot")
 ```
 
 Our list now contains a total of 87 genes because two of them (P0C0L4 and P0C0L5) are associated with two KEGG IDs each.
@@ -136,6 +139,12 @@ kegg_id_ko <- kegg_id_ko %>%
   dplyr::mutate(ID = str_replace(ID, "hsa:", ""), #remove prefix
                 KO = str_replace(KO, "ko:", ""))
 #write.table(kegg_id_ko, "enrichKEGG/data/KEGG_id2ko.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+
+# Update the initial list with KEGG KOs
+genes_file <- genes_file %>%
+  dplyr::rename(kegg_id = kegg) %>%
+  left_join(kegg_id_ko %>% distinct(ID, KO), by = join_by(kegg_id == ID)) %>%
+  dplyr::rename(kegg_ko = KO)
 ```
 
 Among these, the same KO (K03989) is assigned to two different KEGG IDs, both corresponding to complement component 4 (C4; C4A and C4B). So, we have 84 unique KOs.
@@ -237,7 +246,7 @@ kegg_data %>%
 # Set colors for categories
 colors_cat <- colorRampPalette(brewer.pal(8, "Set2"))(length(unique(kegg_data$category)))
 
-# Group by subcategory
+# Group by category
 kegg_data %>%
   dplyr::group_by(pathway, category, name) %>%
   dplyr::summarise(n_path = table(pathway), .groups = "drop") %>%
@@ -350,7 +359,7 @@ p2 <- kegg_data_id %>%
 # Set colors for categories
 colors_cat <- colorRampPalette(brewer.pal(8, "Set2"))(length(unique(kegg_data_id$category)))
 
-# Group by subcategory
+# Group by category
 p3 <- kegg_data_id %>%
   dplyr::group_by(pathway, category, name) %>%
   dplyr::summarise(n = table(pathway), .groups = "drop") %>%
@@ -466,19 +475,19 @@ kegg_engenes <- kegg_enrichment %>%
   summarise(genes = n()) %>%
   left_join(kegg_data_id, by = join_by(geneIDs == ID)) #add KEGG data
 
-# Get gene mapping info
-#kegg_egenes_list <- kegg_egenes %>% distinct(geneIDs) %>% pull(geneIDs)
-
-# Plot top genes across pathways
-p5 <- kegg_engenes %>%
+# Plot all genes across pathways
+kegg_engenes %>%
   distinct(geneIDs, .keep_all = TRUE) %>% #collapse list
+  left_join(genes_file, by = join_by(geneIDs == kegg_id)) %>% #add gene data from the input list
+  dplyr::mutate(gene_lab = paste0(HGNC_symbol, " (KEGG ID: ", geneIDs, ") - ", Main_function)) %>% #label
   arrange(desc(genes)) %>%
-  dplyr::slice(1:30) %>% #top 30
-  ggplot(aes(x = genes, y = fct_reorder(geneIDs, genes))) +
-  geom_point(aes(size = genes), alpha = 0.75, color = "#e31a1c") +
+  ggplot(aes(x = genes, y = fct_reorder(gene_lab, genes))) +
+  geom_point(aes(size = genes, color = category), alpha = 0.75) + #"#e31a1c"
+  geom_text(aes(label = genes), vjust = 0.5, hjust = -0.25, size = 3) +
   scale_y_discrete(expand = c(0.025, 0)) + #add y-axis space
+  scale_fill_manual(name = "Category", values = colors_cat) +
   guides(size = "none") +
-  labs(title = "Inflammatory genes (more enriched, top 30)", x = "# of pathways", y = "KEGG ID") +
+  labs(title = "Inflammatory genes", x = "# of pathways", y = "Gene name and function") +
   theme_classic() +
   theme(legend.box.spacing = unit(0.5, "pt"), #space between tree and legend
         legend.key.spacing.x = unit(0.1, "pt"), #space between columns
@@ -486,8 +495,30 @@ p5 <- kegg_engenes %>%
         legend.spacing.y = unit(0.75, "pt"), #space between legend titles
         legend.key.height = unit(3, units = "mm"),
         legend.key.width = unit(4, units = "mm"))
-p5
-ggsave("enrichKEGG/plots/plot_KEGG_key_genes.png", height = 5, width = 7)
+ggsave("enrichKEGG/plots/plot_KEGG_key_genes.png", height = 15, width = 10)
+```
+
+## KEGG statistics
+
+We explore some data in the KEGG database.
+
+```{r keggstats}
+# Count genes per pathway
+kegg_genes_per_pathway <- kegg_mapping %>%
+  dplyr::group_by(path_id) %>%
+  dplyr::summarise(n_genes = n_distinct(gene_id))
+
+# Plot an histogram with the average number of genes per pathways
+kegg_genes_per_pathway %>%
+  ggplot(aes(x = n_genes)) +
+  geom_histogram(bins = 30, color = "black", fill = "skyblue", alpha = 0.75) + #binwidth = 0.2
+  stat_bin(aes(label = after_stat(count)), bins = 30, geom = "text", size = 3, vjust = -0.5) +
+  scale_y_continuous(limits = c(0, 150)) +
+  labs(title = "Human KEGG average genes per pathway histogram",
+       subtitle = paste0("Total pathways: ", length(unique(kegg_mapping$path_id))),
+       x = "Number of genes per pathway", y = "Number of pathways") +
+  theme_classic()
+ggsave("enrichKEGG/plots/plot_KEGG_stats.png", height = 5, width = 7)
 ```
 
 ## KEGG pathway
@@ -588,6 +619,14 @@ nodes(top_subg2) <- top_subgenes
 plot(top_subg2, "twopi", attrs = list(node = list(fillcolor = "lightblue", font = 5)))
 
 ## check -> https://www.kegg.jp/pathway/hsa04148
+```
+
+## Gene expression per pathway
+
+```{r genexpr}
+#kegg_engenes
+#get_gene_expression()
+
 ```
 
 ## Reactome pathway analysis

@@ -17,7 +17,9 @@ suppressMessages(library(pals)) #more colors
 suppressWarnings(library(colorspace)) #color gradients
 suppressMessages(library(biomaRt)) #ensembl convertion
 suppressMessages(library(GenomicRanges)) #genomic positions
+suppressMessages(library(arrow)) #read parquet files
 suppressMessages(library(ontologyIndex)) #MONDO onthology
+suppressMessages(library(disgenet2r)) #disease mapping
 ```
 
 ## GWAS data processing
@@ -34,6 +36,13 @@ Data sources:
   Biological samples
   Blood samples
   Genomic data
+Process data:
+  Filter variants (QC)
+  Map variants to genes
+    Ensembl VEP
+  Map genes to disease onthology
+    Open Targets Platform API
+  Generate a gene + disease
 
 # Load processed GWAS data
 
@@ -60,6 +69,15 @@ mart_snps <- useMart("ENSEMBL_MART_SNP", dataset = "hsapiens_snp")
 
 # Create a list of reference SNPs ID (rsid)
 snps_list <- gwas_data %>% pull(rsid)
+print(length(snps_list))
+
+snp_mart <- useEnsembl(biomart = "snp", dataset = "hsapiens_snp", host = "https://grch37.ensembl.org")
+#https://useast.ensembl.org/index.html
+
+snp_annot <- getBM(attributes = c("refsnp_id", "chr_name", "chrom_start", "allele",
+                                  "ensembl_gene_stable_id", "consequence_type_tv"), mart = mart_snps)
+write.table(snp_annot, "GRCh37_Ensembl_SNP_annotation.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+
 
 # Query genes to get ensembl gene names
 snps_query <- getBM(attributes = c("refsnp_id", "phenotype_description", "ensembl_gene_name"),
@@ -89,5 +107,15 @@ mondo <- get_ontology("GWAS/data/mondo-simple.obo", extract_tags = "minimal")
 #"Alzheimer disease" 
 #mondo$parents["MONDO:0004975"]
 #$`MONDO:0004975`
+
+# Obtain associated diseases (ie. query DisGeNET)
+
+
+# Map disease IDs to MONDO onthology
+
+#disgenet2
+#Sys.setenv(DISGENET_API_KEY = "fbf5160e-978e-4f53-8397-08894abc3f05")
+#results <- gene2evidence(gene = "ENSG00000138892", vocabulary = "ENSEMBL", database = "ALL")
+#gene2disease(gene = "NLRP3", vocabulary = "MONDO")
 
 ```

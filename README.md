@@ -18,6 +18,7 @@ The pipeline performs the following analyses:
 
 
 ```inflammation_genes.tsv``` — Initial list of inflammatory genes (HGNC symbols).
+
 ```curated_genes.tsv``` — Curated gene catalog containing UniProt and GeneCards identifiers.
 
 ## Output
