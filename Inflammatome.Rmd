@@ -1,0 +1,295 @@
+---
+title: "Inflammatome"
+author: "Moises A. Rojas"
+date: "31/07/2026"
+output:
+  html_document:
+    toc: true
+---
+
+```{r setup}
+suppressMessages(library(tidyverse)) #tidy ecosystem
+suppressMessages(library(magrittr)) #pipes %>%
+suppressMessages(library(ggplot2)) #plotting
+suppressMessages(library(patchwork)) #side-by-side plotting
+suppressMessages(library(RColorBrewer)) #color palettes
+suppressWarnings(library(colorRamp2)) #color gradients
+suppressMessages(library(biomaRt)) #ensembl convertion
+suppressMessages(library(clusterProfiler)) #KEGG enrichment
+suppressMessages(library(KEGGREST)) #KEGG id conversion
+```
+
+## Load inflammatome dataset
+
+Convert the initial set of genes using the ENTREZ IDs (n = 2,156).
+
+```{r convert}
+# Connect to the human Ensembl database
+ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+
+# Read input file
+inflammatome_file <- read.csv("inflammatome-dataset/data/Inflammatome_genesets_Entrez_2000.tsv",
+                              sep = "\t", header = TRUE, stringsAsFactors = FALSE)
+glimpse(inflammatome_file)
+
+# Filter top 100 genes separately
+inflammatome_file_top <- inflammatome_file %>% dplyr::filter(grepl("top100", gs_name))
+
+# Create a list of genes
+inflammatome_list <- inflammatome_file %>% pull(gene)
+inflammatome_list_top <- inflammatome_file_top %>% pull(gene)
+
+# Convert genes to ENTREZ ID to KEGG IDs
+inflammatome_keggid_top <- bitr_kegg(geneID = inflammatome_list_top, fromType = "ncbi-geneid",
+                                     toType = "kegg", organism = "hsa")
+```
+
+Typically, in humans the ENTREZ IDs are equivalent to KEGG IDs.
+
+## KEGG enrichment
+
+We use the list of genes with KEGG IDs to map them to KEGG pathways.
+
+### Pathway mapping
+
+```{r keggmap}
+# Print database version -> Last update 2026/07/31
+cat(readLines("https://rest.kegg.jp/info/pathway/")[[3]])
+
+# Add organism prefix to each entry
+inflammatome_keggids <- list(paste0("hsa:", inflammatome_list_top))[[1]]
+head(inflammatome_keggids)
+
+# Retrieve gene additional info
+inflammatome_keggids_annot <- getBM(attributes = c("entrezgene_id", "hgnc_symbol", "description"),
+                                    filters = "entrezgene_id", values = inflammatome_list_top,
+                                    mart = ensembl)
+inflammatome_keggids_annot <- inflammatome_keggids_annot %>%
+  dplyr::mutate(entrezgene_id = as.character(entrezgene_id)) %>%
+  dplyr::mutate(description = str_remove(description, "\\s\\[.*$")) #parse description
+
+# We map IDs to pathways
+inflammatome_id2path <- keggLink("pathway", inflammatome_keggids)
+inflammatome_id2path <- tibble(ID = names(inflammatome_id2path), pathway = unname(inflammatome_id2path))
+
+# Are there KEGG IDs not associated with any pathway?
+print(inflammatome_keggids[!inflammatome_keggids %in% inflammatome_id2path$ID])
+print(length(unique(inflammatome_id2path$ID))) #71
+```
+
+We observe that 29 genes genes are not associated with any KEGG pathway. This reduces the set to 71 KEGG IDs.
+
+```{r id2path}
+# Modify and filter columns
+inflammatome_id2path <- inflammatome_id2path %>%
+  dplyr::mutate(ID = str_replace(ID, "hsa:", "")) %>%
+  dplyr::mutate(pathway = str_replace(pathway, "path:hsa", ""))
+
+# Get KEGG pathway names from API
+kegg_categories <- clusterProfiler:::kegg_category_data()
+inflammatome_id2path <- left_join(inflammatome_id2path, kegg_categories, by = join_by(pathway == id))
+
+# Curate NAs manually
+#https://www.kegg.jp/pathway/map<pathway>
+#https://www.genome.jp/kegg/docs/upd_kegg.html
+print(inflammatome_id2path %>% dplyr::filter(is.na(name)) %>% distinct(pathway))
+inflammatome_id2path <- inflammatome_id2path %>%
+  dplyr::mutate(category = case_when(pathway == "04081" ~ "Environmental Information Processing",
+                                     pathway == "04517" ~ "Environmental Information Processing",
+                                     pathway == "04518" ~ "Environmental Information Processing",
+                                     pathway == "04519" ~ "Environmental Information Processing",
+                                     TRUE ~ category)) %>%
+  dplyr::mutate(subcategory = case_when(pathway == "04081" ~ "Signaling molecules and interaction",
+                                        pathway == "04517" ~ "Signaling molecules and interaction",
+                                        pathway == "04518" ~ "Signaling molecules and interaction",
+                                        pathway == "04519" ~ "Signaling molecules and interaction",
+                                        TRUE ~ subcategory)) %>%
+  dplyr::mutate(name = case_when(pathway == "04081" ~ "Hormone signaling",
+                                 pathway == "04517" ~ "IgSF CAM signaling",
+                                 pathway == "04518" ~ "Integrin signaling",
+                                 pathway == "04519" ~ "Cadherin signaling",
+                                 TRUE ~ name))
+
+print(length(unique(inflammatome_id2path$pathway))) #135
+print(length(unique(inflammatome_id2path$category))) #6
+print(length(unique(inflammatome_id2path$subcategory))) #26
+```
+
+Considering this approach, the inflammatome top100 dataset is associated with 135 pathways, distributed across 6 categories and 26 subcategories according to the KEGG classification.
+
+### Distribution plots
+
+```{r keggplot1, fig.width = 10, fig.height = 8, out.width = "100%"}
+# Set colors for categories
+col_cat <- colorRampPalette(brewer.pal(8, "Set2"))(length(unique(inflammatome_id2path$category)))
+
+# Group by category
+pi1 <- inflammatome_id2path %>%
+  dplyr::group_by(pathway, category, name) %>%
+  dplyr::summarise(n = table(pathway), .groups = "drop") %>%
+  dplyr::arrange(desc(n)) %>%
+  ggplot(aes(x = n, y = fct_reorder(name, n), fill = category)) +
+  geom_col(position = "dodge2", width = 0.75) +
+  scale_fill_manual(name = "Category", values = col_cat) +
+  scale_x_continuous(limits = c(0, 15)) +
+  labs(title = "KEGG pathways per category", x = "# of genes", y = "Pathway name") +
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 5),
+        legend.box.spacing = unit(0.5, "pt"), #space between tree and legend
+        legend.key.spacing.x = unit(0.1, "pt"), #space between columns
+        legend.key.spacing.y = unit(0.1, "pt"), #space between rows
+        legend.spacing.y = unit(0.75, "pt"), #space between legend titles
+        legend.key.height = unit(3, units = "mm"),
+        legend.key.width = unit(4, units = "mm"))
+
+# Set colors for subcategories
+col_subcat <- brewer.dark2(length(unique(inflammatome_id2path$subcategory)))
+
+# Group by subcategory
+pi2 <- inflammatome_id2path %>%
+  dplyr::group_by(pathway, subcategory, name) %>%
+  dplyr::summarise(n = table(pathway), .groups = "drop") %>%
+  dplyr::arrange(desc(n)) %>%
+  ggplot(aes(x = n, y = fct_reorder(name, n), fill = subcategory)) +
+  geom_col(position = "dodge2", width = 0.75) +
+  scale_fill_manual(name = "Subcategory", values = col_subcat) +
+  scale_x_continuous(limits = c(0, 15)) +
+  guides(fill = guide_legend(ncol = 1)) +
+  labs(title = "KEGG pathways per subcategory", x = "# of genes", y = "Pathway name") +
+  theme_classic() +
+  theme(axis.text.y = element_text(size = 5),
+        legend.box.spacing = unit(0.5, "pt"), #space between tree and legend
+        legend.key.spacing.x = unit(0.1, "pt"), #space between columns
+        legend.key.spacing.y = unit(0.1, "pt"), #space between rows
+        legend.spacing.y = unit(0.75, "pt"), #space between legend titles
+        legend.key.height = unit(3, units = "mm"),
+        legend.key.width = unit(4, units = "mm"))
+
+# Agglom. plots
+(pi1 / pi2) + plot_annotation(tag_levels = list(c("a", "b")))
+ggsave("inflammatome-dataset/plots/inflammatome_KEGG_pathways.png", height = 21, width = 9, dpi = 450)
+```
+
+The plots above exhibit the global distribution of the resulting KEGG pathways for the inflammatome top100 dataset. Notably, the most represented pathways are IgSF CAM signaling (14 genes), Chemokine signaling pathway (11 genes), Cytokine-cytokine receptor interaction and Tuberculosis (10 genes each).
+
+### Enrichment
+
+We calculate the enrichment-like ratio of genes per pathway.
+
+```{r enrich}
+kegg_inflammatome_enrich <- inflammatome_id2path %>%
+  dplyr::group_by(ID, pathway, name) %>% #separate by IDs
+  dplyr::summarise(n_paths = n(), .groups = "drop") %>%
+  ungroup() %>%
+  dplyr::group_by(pathway, name) %>%
+  dplyr::summarise(across(ID, \(x) paste(na.omit(x), collapse = ",")),
+                   count = n(), .groups = "drop") %>% #collapse IDs by pathway and count them
+  ungroup() %>%
+  dplyr::rename(geneIDs = ID) %>%
+  dplyr::mutate(ratio = count / length(unique(inflammatome_id2path$ID))) #gene ratio is count/total genes
+```
+
+Download the complete KEGG human pathway-to-gene mapping.
+
+```{r kegguniv}
+kegg_all_hsa <- keggLink("pathway", "hsa")
+kegg_mapping <- data.frame(gene_id = gsub("", "", names(kegg_all_hsa)), #hsa:
+                           path_id = gsub("path:hsa", "", unname(kegg_all_hsa)))
+print(length(unique(kegg_mapping$gene_id))) #total genes
+rm(kegg_all_hsa)
+```
+
+The KEGG human pathway map to a total of 9,421 genes.
+
+We define the actual background universe of pathways and genes per pathway.
+
+```{r bgpath}
+# Define the total number of all unique genes in the background distribution
+bg_genes <- length(unique(kegg_mapping$gene_id)) #N
+kegg_map_path <- kegg_mapping %>%
+  dplyr::group_by(path_id) %>%
+  dplyr::summarise(M = n()) #number of genes in the background universe (per pathway)
+
+# Merge background data with the enrichment
+kegg_inflammatome_enrich <- kegg_inflammatome_enrich %>%
+  left_join(kegg_map_path, by = join_by(pathway == path_id)) %>%
+  dplyr::mutate(BgRatio = paste0(M, "/", bg_genes)) #calculate the BgRatio = M/N
+```
+
+Using the background universe, a hypergeometric distribution is applied to calculate the p-value. This statistical test evaluates the significance of the overlap between the gene set and the universe.
+
+```{r bgratio}
+# Define the number of genes in the gene set
+n_paths <- length(unique(inflammatome_id2path$pathway)) #n
+#phyper(k-1, M, N-M, n, lower.tail = FALSE)
+kegg_inflammatome_enrich <- kegg_inflammatome_enrich %>%
+  dplyr::mutate(pvalue = phyper(count - 1, M, bg_genes - M, n_paths, lower.tail = FALSE)) %>%
+  dplyr::mutate(p.adjust = p.adjust(pvalue, method = "BH")) %>%
+  dplyr::mutate(signif = ifelse(p.adjust < 0.05, "*", "")) #mark significant pathways
+
+# Get and sort the significant pathways
+print(kegg_inflammatome_enrich %>%
+        dplyr::filter(p.adjust <= 0.05) %>%
+        dplyr::select(name, ratio, p.adjust) %>%
+        dplyr::arrange(desc(ratio)))
+```
+
+We create a dotplot of the local enrichment.
+
+```{r plotenrich}
+kegg_inflammatome_enrich %>%
+  dplyr::arrange(desc(ratio)) %>%
+  dplyr::slice(1:50) %>%
+  ggplot(aes(x = ratio, y = fct_reorder(name, ratio))) +
+  geom_point(aes(size = count, color = p.adjust), alpha = 0.75) +
+  geom_text(aes(label = signif, x = -0.005),size = 4, color = "#3c4d76") + #p.adj
+  scale_y_discrete(expand = c(0.05, 0)) + #add y-axis space
+  scale_color_gradient(name = "p.adjust", low = "red", high = "blue") +
+  guides(size = guide_legend(title = "# genes", order = 1, reverse = TRUE,
+                             override.aes = list(color = "black", alpha = 0.85))) +
+  labs(title = "KEGG enrichment (top 50)", x = "Gene ratio", y = "Pathway name") +
+  theme_classic() +
+  theme(legend.key.height = unit(3, units = "mm"),
+        legend.key.width = unit(4, units = "mm"))
+ggsave("inflammatome-dataset/plots/KEGG_enrichment_top100.png", height = 7, width = 7)
+```
+
+Of the top 50 most enriched pathways, only 6 showed statistically significant adjusted p-values (indicated with an asterisk *). Among the top five pathways, "Cytokine-cytokine receptor interaction" displayed a high enrichment ratio despite having lower representation in the background universe (p = 0.141).
+
+```{r enrichgenes}
+kegg_inflammatome_genes <- kegg_inflammatome_enrich %>%
+  separate_longer_delim(cols = geneIDs, delim = ",") %>% #split 114548,1535,1536,29108,..., to rows
+  group_by(geneIDs) %>%
+  summarise(genes = n()) %>%
+  left_join(inflammatome_id2path, by = join_by(geneIDs == ID)) #add KEGG data
+
+# Plot all genes across pathways
+kegg_inflammatome_genes %>%
+  distinct(geneIDs, .keep_all = TRUE) %>% #collapse list
+  left_join(inflammatome_keggids_annot, by = join_by(geneIDs == entrezgene_id)) %>% #add gene info
+  dplyr::mutate(label = paste0(hgnc_symbol, " (KEGG ID: ", geneIDs, ") - ", description)) %>% #label
+  arrange(desc(genes)) %>%
+  ggplot(aes(x = genes, y = fct_reorder(label, genes))) +
+  geom_point(aes(size = genes, color = category), alpha = 0.75) +
+  #geom_text(aes(label = genes), vjust = 0.5, hjust = -0.25, size = 3) +
+  scale_y_discrete(expand = c(0.025, 0)) + #add y-axis space
+  scale_fill_manual(name = "Category", values = colors_cat) +
+  guides(size = "none") +
+  labs(title = "Inflammatome genes", x = "# of pathways", y = "Gene name and function") +
+  theme_classic() +
+  theme(legend.box.spacing = unit(0.5, "pt"), #space between tree and legend
+        legend.key.spacing.x = unit(0.1, "pt"), #space between columns
+        legend.key.spacing.y = unit(0.1, "pt"), #space between rows
+        legend.spacing.y = unit(0.75, "pt"), #space between legend titles
+        legend.key.height = unit(3, units = "mm"),
+        legend.key.width = unit(4, units = "mm"))
+ggsave("inflammatome-dataset/plots/KEGG_key_genes_top100.png", height = 15, width = 12)
+```
+
+The plot above shows the global distribution of the 71 inflammatome top100 genes and summarizes the pathways identified by the enrichment analysis.
+
+## Overlap to 85 gene set
+
+```{r overlap}
+
+```

@@ -1,0 +1,86 @@
+Gene_or_gene_product	HGNC_symbol	Main_function	uniprot	genecards	KEGG_ID	KEGG_KO
+MDR1	ABCB1	Xenobiotic transport	P08183	40	5243	K05658
+AIRE	AIRE	Central tolerance	O43918	360	326	K10603
+	ALOX15	Specialized pro-resolving mediators	P16050	433	246	K00460
+	ALOX5	Specialized pro-resolving mediators	P09917	435	240	K00461
+Serum amyloid P	APCS	Clearance of apoptotic debris	P02743	584	325	K23267
+	APOE	Resolution macrophages / efferocytosis	P02649	613	348	K04524
+	AXL	Resolution macrophages / efferocytosis	P30530	905	558	K05115
+	BCL3	Negative-feedback regulators	P20749	998	602	K09258
+Btk	BTK	B-cell signaling	Q06187	1133	695	K07370
+C1q	C1QA	Complement clearance	P02745	1241	712	K03986
+C1q	C1QB	Complement clearance	P02746	1242	713	K03987
+C1q	C1QC	Complement clearance	P02747	1245	714	K03988
+C2	C2	Complement	P06681	1248	717	K01332
+C4	C4A	Complement	P0C0L4	1323	720, 721	K03989
+C4	C4B	Complement	P0C0L5	1324	100293534, 721	K03989
+	CASP1	Inflammasome and inflammatory cell death (pyroptosis)	P29466	1499	834	K01370
+Caspase-8	CASP8	Death receptor signaling	Q14790	1509	841	K04398
+Cbl	CBL	Ubiquitination	P22681	1541	867	K04707
+	CD36	Resolution macrophages / efferocytosis	P16671	1663	948	K06259
+p21	CDKN1A	Cell-cycle control	P38936	1784	1026	K06625
+	CMKLR1	Specialized pro-resolving mediators	Q99788	2121	1240	K04245
+CTLA4	CTLA4	T-cell inhibition	P16410	2505	1493	K06538
+p22phox	CYBA	NADPH oxidase	P13498	2577	1535	K08009
+gp91phox	CYBB	NADPH oxidase	P04839	2578	1536	K21421
+	CYLD	Negative-feedback regulators	Q9NQC7	2584	1540	K08601
+DNase I	DNASE1	Clearance of extracellular DNA	P24855	2956	1773	K11994
+	DUSP1	Negative-feedback regulators	P28562	3064	1843	K21278
+Fas (CD95)	FAS	Apoptosis	P25445	11920	355	K04390
+Fas ligand	FASLG	Apoptosis	P48023	11936	356	K04389
+Foxp3	FOXP3	Regulatory T cells	Q9BZS1	6106	50943	K10163
+	FPR2	Specialized pro-resolving mediators	P25090	3827	2358	K04173
+GADD45α	GADD45A	Stress response	P24522	4095	1647	K04402
+	GAS6	Resolution macrophages / efferocytosis	Q14393	4168	2621	K05464
+Gαi2	GNAI2	GPCR signaling	P04899	4385	2771	K04630
+Heme oxygenase-1	HMOX1	Oxidative stress protection	P09601	5013	3162	K00510
+IFN-γ receptor 1	IFNGR1	Macrophage activation	P15260	5439	3459	K05132
+IFN-γ receptor 2	IFNGR2	Macrophage activation	P38484	5440	3460	K05133
+IKKβ	IKBKB	NF-κB pathway	O14920	5960	3551	K07209
+NEMO	IKBKG	NF-κB pathway	Q9Y6K9	5961	8517	K07210
+IL-10	IL10	Anti-inflammatory cytokine	P22301	5962	3586	K05443
+IL-10 receptor (α subunit)	IL10RA	IL-10 signaling	Q13651	5964	3587	K05134
+IL-10 receptor (β subunit)	IL10RB	IL-10 signaling	Q08334	5965	3588	K05135
+	IL18	Inflammasome and inflammatory cell death (pyroptosis)	Q14116	5986	3606	K05482
+IL-1 receptor antagonist	IL1RN	IL-1 inhibition	P18510	6000	3557	K05481
+SHIP	INPP5D	PI3K regulation	Q92835	6079	3635	K03084
+CD11a	ITGAL	Leukocyte adhesion	P20701	6148	3683	K05718
+CD11b	ITGAM	Leukocyte adhesion	P11215	6149	3684	K06461
+CD18 (β2 integrin)	ITGB2	Leukocyte adhesion	P05107	6155	3689	K06464
+	LRP1	Resolution macrophages / efferocytosis	Q07954	6692	4035	K04550
+Lyn	LYN	Src-family kinase	P07948	6735	4067	K05854
+Pyrin	MEFV	Inflammasome and inflammatory cell death (pyroptosis)	O15553	6998	4210	K12803
+Mer receptor	MERTK	Phagocytosis of apoptotic cells	Q12866	7027	10461	K05117
+Milk fat globule EGF factor 8	MFGE8	Resolution macrophages / efferocytosis	Q08431	7036	4240	K17253
+p47phox	NCF1	NADPH oxidase / Oxidative homeostasis	P14598	7660	653361	K08011
+p67phox	NCF2	NADPH oxidase	P19878	7661	4688	K08010
+NFATp	NFATC2	T-cell regulation	Q13469	7776	4773	K17332
+NFAT4	NFATC3	T-cell regulation	Q12968	7777	4775	K17333
+NRF2 protein	NFE2L2	Oxidative homeostasis	Q16236	7782	4780	K05638
+NF-κB1	NFKB1	NF-κB signaling	P19838	7794	4790	K02580
+IκBα	NFKBIA	NF-κB inhibition	P25963	7797	4792	K04734
+Cryopyrin	NLRP3	Inflammasome and inflammatory cell death (pyroptosis), and mitophagy	Q96P20	16400	114548	K12800
+NOD2	NOD2	Pattern recognition	Q9HC29	5331	64127	K10165
+PECAM-1	PECAM1	Leukocyte trafficking	P16284	8823	5175	K06471
+	PLA2G4A	Specialized pro-resolving mediators	P47712	9035	5321	K16342
+	PSTPIP1	Immune system and signaling pathways	O43586	9580	9051	K12804
+PTEN	PTEN	PI3K regulation	P60484	9588	5728	K01110
+SHP-1	PTPN6	Negative signaling	P29350	9658	5777	K05697
+	PYCARD	Inflammasome and inflammatory cell death (pyroptosis)	Q9ULZ3	16608	29108	K12799
+RelB	RELB	NF-κB transcription factor	Q01201	9956	5971	K09253
+E-selectin ligand	SELPLG	Leukocyte rolling	Q14242	10722	6404	K06544
+C1 inhibitor	SERPING1	Complement regulation	P05155	1228	710	K04001
+NRAMP1	SLC11A1	Macrophage antimicrobial activity	P49279	10907	6556	K12347
+	SOCS1	Negative-feedback regulators	O15524	19383	8651	K04694
+	SOCS3	Negative-feedback regulators	O14543	19391	9021	K04696
+	SOD2	Oxidative homeostasis	P04179	11180	6648	K04564
+	STAB1	Resolution macrophages / efferocytosis	Q9NY15	18628	23166	K19020
+STAT1	STAT1	IFN signaling	P42224	11362	6772	K11220
+T-bet	TBX21	Th1 differentiation	Q9UL17	11599	30009	K10166
+TGF-β1	TGFB1	Immune suppression	P01137	11766	7040	K13375
+	TIMD4	Resolution macrophages / efferocytosis	Q96H15	25132	91937	K26936
+	TNFAIP3	Negative-feedback regulators	P21580	11896	7128	K11859
+TNF receptor 1	TNFRSF1A	TNF signaling	P19438	11916	7132	K03158
+	TNIP1	Negative-feedback regulators	Q15025	16903	10318	K23829
+WASP	WAS	Cytoskeletal regulation	P42768	12731	7454	K05747
+Tristetraprolin	ZFP36	TNF mRNA decay	P26651	12862	7538	K15308
