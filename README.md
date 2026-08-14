@@ -1,6 +1,6 @@
 # inflammation-enrichment
 
-A set of inflammatory genes processed via [KEGG mapping](https://www.genome.jp/kegg/kegg1b.html.
+A set of inflammatory genes processed via [KEGG mapping](https://www.genome.jp/kegg/kegg1b.html).
 
 ## Overview
 

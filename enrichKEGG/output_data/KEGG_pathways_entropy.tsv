@@ -1,0 +1,373 @@
+pathway	name	entropy	category	subcategory
+00010	Glycolysis / Gluconeogenesis	3.98518583078017	Metabolism	Carbohydrate metabolism
+00020	Citrate cycle (TCA cycle)	4.97884403852556	Metabolism	Carbohydrate metabolism
+00030	Pentose phosphate pathway	4.37343617486723	Metabolism	Carbohydrate metabolism
+00040	Pentose and glucuronate interconversions	3.39402730505325	Metabolism	Carbohydrate metabolism
+00051	Fructose and mannose metabolism	4.59964492147196	Metabolism	Carbohydrate metabolism
+00052	Galactose metabolism	4.18375537330578	Metabolism	Carbohydrate metabolism
+00053	Ascorbate and aldarate metabolism	3.08600426665301	Metabolism	Carbohydrate metabolism
+00061	Fatty acid biosynthesis	4.6887034560692	Metabolism	Lipid metabolism
+00062	Fatty acid elongation	5.0092923941219	Metabolism	Lipid metabolism
+00071	Fatty acid degradation	4.61192710936324	Metabolism	Lipid metabolism
+00100	Steroid biosynthesis	4.67086002048656	Metabolism	Lipid metabolism
+00120	Primary bile acid biosynthesis	3.81813748023935	Metabolism	Lipid metabolism
+00130	Ubiquinone and other terpenoid-quinone biosynthesis	4.57410838757109	Metabolism	Metabolism of cofactors and vitamins
+00140	Steroid hormone biosynthesis	2.99362314656262	Metabolism	Lipid metabolism
+00190	Oxidative phosphorylation	5.04164122313733	Metabolism	Energy metabolism
+00220	Arginine biosynthesis	4.35722457925997	Metabolism	Amino acid metabolism
+00230	Purine metabolism	4.75317925038232	Metabolism	Nucleotide metabolism
+00232	Caffeine metabolism	2.13002347057983	Metabolism	Biosynthesis of other secondary metabolites
+00240	Pyrimidine metabolism	4.73563292247227	Metabolism	Nucleotide metabolism
+00250	Alanine, aspartate and glutamate metabolism	4.39539151120386	Metabolism	Amino acid metabolism
+00260	Glycine, serine and threonine metabolism	4.27512414203862	Metabolism	Amino acid metabolism
+00270	Cysteine and methionine metabolism	4.36918869855471	Metabolism	Amino acid metabolism
+00280	Valine, leucine and isoleucine degradation	4.97336293598459	Metabolism	Amino acid metabolism
+00290	Valine, leucine and isoleucine biosynthesis	4.34718850885587	Metabolism	Amino acid metabolism
+00310	Lysine degradation	4.96017952271891	Metabolism	Amino acid metabolism
+00330	Arginine and proline metabolism	4.51156706289343	Metabolism	Amino acid metabolism
+00340	Histidine metabolism	4.13635625773661	Metabolism	Amino acid metabolism
+00350	Tyrosine metabolism	3.45941477150853	Metabolism	Amino acid metabolism
+00360	Phenylalanine metabolism	3.51863308119005	Metabolism	Amino acid metabolism
+00380	Tryptophan metabolism	4.42834665980014	Metabolism	Amino acid metabolism
+00400	Phenylalanine, tyrosine and tryptophan biosynthesis	2.57995614659172	Metabolism	Amino acid metabolism
+00410	beta-Alanine metabolism	4.60284952565681	Metabolism	Metabolism of other amino acids
+00430	Taurine and hypotaurine metabolism	4.29479317275619	Metabolism	Metabolism of other amino acids
+00440	Phosphonate and phosphinate metabolism	5.15666184569989	Metabolism	Metabolism of other amino acids
+00450	Selenocompound metabolism	5.08902161933952	Metabolism	Metabolism of other amino acids
+00470	D-Amino acid metabolism	4.77785608589501	Metabolism	Metabolism of other amino acids
+00480	Glutathione metabolism	4.56160747283021	Metabolism	Metabolism of other amino acids
+00500	Starch and sucrose metabolism	3.86256002533098	Metabolism	Carbohydrate metabolism
+00510	N-Glycan biosynthesis	5.05576090071155	Metabolism	Glycan biosynthesis and metabolism
+00511	Other glycan degradation	5.01381856280672	Metabolism	Glycan biosynthesis and metabolism
+00512	Mucin type O-glycan biosynthesis	4.60415710151188	Metabolism	Glycan biosynthesis and metabolism
+00513	Various types of N-glycan biosynthesis	5.02325422725479	Metabolism	Glycan biosynthesis and metabolism
+00514	Other types of O-glycan biosynthesis	4.90176876026384	Metabolism	Glycan biosynthesis and metabolism
+00515	Mannose type O-glycan biosynthesis	5.06159817822999	Metabolism	Glycan biosynthesis and metabolism
+00520	Amino sugar and nucleotide sugar metabolism	4.91881889616198	Metabolism	Carbohydrate metabolism
+00524	Neomycin, kanamycin and gentamicin biosynthesis	4.23754194368446	Metabolism	Biosynthesis of other secondary metabolites
+00531	Glycosaminoglycan degradation	4.7523918155393	Metabolism	Glycan biosynthesis and metabolism
+00532	Glycosaminoglycan biosynthesis - chondroitin sulfate / dermatan sulfate	5.036607037017	Metabolism	Glycan biosynthesis and metabolism
+00533	Glycosaminoglycan biosynthesis - keratan sulfate	4.96486488102972	Metabolism	Glycan biosynthesis and metabolism
+00534	Glycosaminoglycan biosynthesis - heparan sulfate / heparin	4.85726382178956	Metabolism	Glycan biosynthesis and metabolism
+00541	O-Antigen nucleotide sugar biosynthesis	5.16943614192658	Metabolism	Glycan biosynthesis and metabolism
+00561	Glycerolipid metabolism	4.26122466492449	Metabolism	Lipid metabolism
+00562	Inositol phosphate metabolism	4.98446337737445	Metabolism	Carbohydrate metabolism
+00563	Glycosylphosphatidylinositol (GPI)-anchor biosynthesis	5.30585674594728	Metabolism	Glycan biosynthesis and metabolism
+00564	Glycerophospholipid metabolism	4.75498792275374	Metabolism	Lipid metabolism
+00565	Ether lipid metabolism	4.49539573702118	Metabolism	Lipid metabolism
+00590	Arachidonic acid metabolism	3.90671848272001	Metabolism	Lipid metabolism
+00591	Linoleic acid metabolism	3.24059659429136	Metabolism	Lipid metabolism
+00592	alpha-Linolenic acid metabolism	4.00742634466925	Metabolism	Lipid metabolism
+00600	Sphingolipid metabolism	4.81397941093525	Metabolism	Lipid metabolism
+00601	Glycosphingolipid biosynthesis - lacto and neolacto series	4.55123965103567	Metabolism	Glycan biosynthesis and metabolism
+00603	Glycosphingolipid biosynthesis - globo and isoglobo series	4.95167453785691	Metabolism	Glycan biosynthesis and metabolism
+00604	Glycosphingolipid biosynthesis - ganglio series	5.03709658784946	Metabolism	Glycan biosynthesis and metabolism
+00620	Pyruvate metabolism	4.37319962950358	Metabolism	Carbohydrate metabolism
+00630	Glyoxylate and dicarboxylate metabolism	4.58999214024072	Metabolism	Carbohydrate metabolism
+00640	Propanoate metabolism	4.94516689979371	Metabolism	Carbohydrate metabolism
+00650	Butanoate metabolism	4.39928475789341	Metabolism	Carbohydrate metabolism
+00660	C5-Branched dibasic acid metabolism	4.72217631451468	Metabolism	Carbohydrate metabolism
+00670	One carbon pool by folate	4.49296836489969	Metabolism	Metabolism of cofactors and vitamins
+00730	Thiamine metabolism	4.36559371643467	Metabolism	Metabolism of cofactors and vitamins
+00740	Riboflavin metabolism	5.13224467376131	Metabolism	Metabolism of cofactors and vitamins
+00750	Vitamin B6 metabolism	4.87781978404746	Metabolism	Metabolism of cofactors and vitamins
+00760	Nicotinate and nicotinamide metabolism	4.76401327980893	Metabolism	Metabolism of cofactors and vitamins
+00770	Pantothenate and CoA biosynthesis	4.52837123844883	Metabolism	Metabolism of cofactors and vitamins
+00780	Biotin metabolism	5.32860519797934	Metabolism	Metabolism of cofactors and vitamins
+00785	Lipoic acid metabolism	4.89871902975218	Metabolism	Metabolism of cofactors and vitamins
+00790	Folate biosynthesis	4.2003288342428	Metabolism	Metabolism of cofactors and vitamins
+00830	Retinol metabolism	3.09476287438465	Metabolism	Metabolism of cofactors and vitamins
+00860	Porphyrin metabolism	3.59330239716718	Metabolism	Metabolism of cofactors and vitamins
+00900	Terpenoid backbone biosynthesis	4.76347802442645	Metabolism	Metabolism of terpenoids and polyketides
+00910	Nitrogen metabolism	3.66125313838208	Metabolism	Energy metabolism
+00920	Sulfur metabolism	5.17512285290986	Metabolism	Energy metabolism
+00970	Aminoacyl-tRNA biosynthesis	5.21727416877039	Genetic Information Processing	Translation
+00980	Metabolism of xenobiotics by cytochrome P450	3.23243530947705	Metabolism	Xenobiotics biodegradation and metabolism
+00982	Drug metabolism - cytochrome P450	3.09758825613824	Metabolism	Xenobiotics biodegradation and metabolism
+00983	Drug metabolism - other enzymes	3.79430354158053	Metabolism	Xenobiotics biodegradation and metabolism
+01040	Biosynthesis of unsaturated fatty acids	4.88388503405165	Metabolism	Lipid metabolism
+01100	Metabolic pathways	4.58866834032963	Metabolism	Global and overview maps
+01200	Carbon metabolism	4.53158637865244	Metabolism	Global and overview maps
+01210	2-Oxocarboxylic acid metabolism	4.59739737900592	Metabolism	Global and overview maps
+01212	Fatty acid metabolism	4.99459574948693	Metabolism	Global and overview maps
+01230	Biosynthesis of amino acids	4.34171858535954	Metabolism	Global and overview maps
+01232	Nucleotide metabolism	4.8202729068779	Metabolism	Global and overview maps
+01240	Biosynthesis of cofactors	4.50583360414889	Metabolism	Global and overview maps
+01250	Biosynthesis of nucleotide sugars	4.9620701490723	Metabolism	Global and overview maps
+01320	Sulfur cycle	4.94650108229475	Metabolism	Energy metabolism
+01521	EGFR tyrosine kinase inhibitor resistance	5.033742133054	Human Diseases	Drug resistance: antineoplastic
+01522	Endocrine resistance	4.87482696278152	Human Diseases	Drug resistance: antineoplastic
+01523	Antifolate resistance	4.61232946541319	Human Diseases	Drug resistance: antineoplastic
+01524	Platinum drug resistance	4.79513153443548	Human Diseases	Drug resistance: antineoplastic
+02010	ABC transporters	4.37704322584976	Environmental Information Processing	Membrane transport
+03008	Ribosome biogenesis in eukaryotes	4.89750079552525	Genetic Information Processing	Translation
+03010	Ribosome	5.11683578814933	Genetic Information Processing	Translation
+03013	Nucleocytoplasmic transport	5.04612484997684	Genetic Information Processing	Translation
+03015	mRNA surveillance pathway	5.05408405633056	Genetic Information Processing	Translation
+03018	RNA degradation	5.02480579851658	Genetic Information Processing	Folding, sorting and degradation
+03020	RNA polymerase	5.26853853473644	Genetic Information Processing	Transcription
+03022	Basal transcription factors	4.98174700661433	Genetic Information Processing	Transcription
+03030	DNA replication	4.8895454588911	Genetic Information Processing	Replication and repair
+03040	Spliceosome	5.19095856810714	Genetic Information Processing	Transcription
+03050	Proteasome	5.08962666502174	Genetic Information Processing	Folding, sorting and degradation
+03060	Protein export	5.14795509146829	Genetic Information Processing	Folding, sorting and degradation
+03082	ATP-dependent chromatin remodeling	5.05883505031457	Genetic Information Processing	Chromosome
+03083	Polycomb repressive complex	5.21705383652758	Genetic Information Processing	Chromosome
+03250	Viral life cycle - HIV-1	4.93326274051278	Genetic Information Processing	Information processing in viruses
+03260	Virion - Human immunodeficiency virus	4.39831837711034	Genetic Information Processing	Information processing in viruses
+03264	Virion - Flavivirus	4.48380932777731	Genetic Information Processing	Information processing in viruses
+03265	Virion - Ebolavirus and Lyssavirus	3.8299119604573	Genetic Information Processing	Information processing in viruses
+03266	Virion - Herpesvirus	4.89673970448914	Genetic Information Processing	Information processing in viruses
+03267	Virion - Adenovirus	3.94467327461142	Genetic Information Processing	Information processing in viruses
+03271	Virion - Rotavirus	4.72183311146705	Genetic Information Processing	Information processing in viruses
+03272	Virion - Hepatitis viruses	4.36408327981825	Genetic Information Processing	Information processing in viruses
+03273	Virion - Lassa virus and SFTS virus	4.68542706872595	Genetic Information Processing	Information processing in viruses
+03320	PPAR signaling pathway	4.0441753214162	Organismal Systems	Endocrine system
+03410	Base excision repair	5.07775767214629	Genetic Information Processing	Replication and repair
+03420	Nucleotide excision repair	5.1242812647279	Genetic Information Processing	Replication and repair
+03430	Mismatch repair	4.95372344846713	Genetic Information Processing	Replication and repair
+03440	Homologous recombination	4.72158306556761	Genetic Information Processing	Replication and repair
+03450	Non-homologous end-joining	4.96229792689587	Genetic Information Processing	Replication and repair
+03460	Fanconi anemia pathway	4.86472244986853	Genetic Information Processing	Replication and repair
+04010	MAPK signaling pathway	4.71255836984963	Environmental Information Processing	Signal transduction
+04012	ErbB signaling pathway	4.97363912689751	Environmental Information Processing	Signal transduction
+04014	Ras signaling pathway	4.62134901984269	Environmental Information Processing	Signal transduction
+04015	Rap1 signaling pathway	4.6780248222778	Environmental Information Processing	Signal transduction
+04020	Calcium signaling pathway	4.30620723784077	Environmental Information Processing	Signal transduction
+04022	cGMP-PKG signaling pathway	4.45026486895454	Environmental Information Processing	Signal transduction
+04024	cAMP signaling pathway	4.19578581434965	Environmental Information Processing	Signal transduction
+04060	Cytokine-cytokine receptor interaction	3.88844894107521	Environmental Information Processing	Signaling molecules and interaction
+04061	Viral protein interaction with cytokine and cytokine receptor	3.6089104314263	Environmental Information Processing	Signaling molecules and interaction
+04062	Chemokine signaling pathway	4.34675955929329	Organismal Systems	Immune system
+04064	NF-kappa B signaling pathway	4.5664660490933	Environmental Information Processing	Signal transduction
+04066	HIF-1 signaling pathway	4.57086021217545	Environmental Information Processing	Signal transduction
+04068	FoxO signaling pathway	4.82718335425628	Environmental Information Processing	Signal transduction
+04070	Phosphatidylinositol signaling system	4.96061163053591	Environmental Information Processing	Signal transduction
+04071	Sphingolipid signaling pathway	4.95255073081592	Environmental Information Processing	Signal transduction
+04072	Phospholipase D signaling pathway	4.65782124277966	Environmental Information Processing	Signal transduction
+04080	Neuroactive ligand-receptor interaction	3.74114065698067	Environmental Information Processing	Signaling molecules and interaction
+04081	Hormone signaling	3.88823822265935	Environmental Information Processing	Signaling molecules and interaction
+04082	Neuroactive ligand signaling	4.13469454873913	Environmental Information Processing	Signaling molecules and interaction
+04110	Cell cycle	4.63706679283468	Cellular Processes	Cell growth and death
+04114	Oocyte meiosis	4.54220832976791	Cellular Processes	Cell growth and death
+04115	p53 signaling pathway	4.67072171932908	Cellular Processes	Cell growth and death
+04120	Ubiquitin mediated proteolysis	5.15413665849594	Genetic Information Processing	Folding, sorting and degradation
+04122	Sulfur relay system	5.34768586000338	Genetic Information Processing	Folding, sorting and degradation
+04130	SNARE interactions in vesicular transport	5.1865575387426	Genetic Information Processing	Folding, sorting and degradation
+04136	Autophagy - other	5.32223735536063	Cellular Processes	Transport and catabolism
+04137	Mitophagy - animal	5.24888033962573	Cellular Processes	Transport and catabolism
+04140	Autophagy - animal	5.14728131618036	Cellular Processes	Transport and catabolism
+04141	Protein processing in endoplasmic reticulum	5.01488453980062	Genetic Information Processing	Folding, sorting and degradation
+04142	Lysosome	4.99357762468633	Cellular Processes	Transport and catabolism
+04144	Endocytosis	4.9990707918673	Cellular Processes	Transport and catabolism
+04145	Phagosome	4.35535006250029	Cellular Processes	Transport and catabolism
+04146	Peroxisome	4.93635738841717	Cellular Processes	Transport and catabolism
+04148	Efferocytosis	4.76292658842378	Cellular Processes	Transport and catabolism
+04150	mTOR signaling pathway	4.96907690204364	Environmental Information Processing	Signal transduction
+04151	PI3K-Akt signaling pathway	4.52783528693514	Environmental Information Processing	Signal transduction
+04152	AMPK signaling pathway	4.73603876533651	Environmental Information Processing	Signal transduction
+04156	Integrated stress response (ISR) signaling pathway	5.04242245984958	Cellular Processes	Cell growth and death
+04210	Apoptosis	4.81119059026909	Cellular Processes	Cell growth and death
+04211	Longevity regulating pathway	4.87300861457672	Organismal Systems	Aging
+04213	Longevity regulating pathway - multiple species	4.83566029695207	Organismal Systems	Aging
+04215	Apoptosis - multiple species	4.85796225873526	Cellular Processes	Cell growth and death
+04216	Ferroptosis	4.78668511819429	Cellular Processes	Cell growth and death
+04217	Necroptosis	4.73820090303801	Cellular Processes	Cell growth and death
+04218	Cellular senescence	4.79967682178267	Cellular Processes	Cell growth and death
+04260	Cardiac muscle contraction	4.03873543528861	Organismal Systems	Circulatory system
+04261	Adrenergic signaling in cardiomyocytes	4.34645810439863	Organismal Systems	Circulatory system
+04270	Vascular smooth muscle contraction	4.3911070308204	Organismal Systems	Circulatory system
+04310	Wnt signaling pathway	4.74897178676822	Environmental Information Processing	Signal transduction
+04330	Notch signaling pathway	5.0265538830601	Environmental Information Processing	Signal transduction
+04340	Hedgehog signaling pathway	4.8375233648113	Environmental Information Processing	Signal transduction
+04350	TGF-beta signaling pathway	4.66594882153642	Environmental Information Processing	Signal transduction
+04360	Axon guidance	4.8708149653224	Organismal Systems	Development and regeneration
+04370	VEGF signaling pathway	4.85813643395023	Environmental Information Processing	Signal transduction
+04371	Apelin signaling pathway	4.5952347572432	Environmental Information Processing	Signal transduction
+04380	Osteoclast differentiation	4.5077316904348	Organismal Systems	Development and regeneration
+04382	Cornified envelope formation	3.2159306769412	Organismal Systems	Development and regeneration
+04390	Hippo signaling pathway	4.86116281056406	Environmental Information Processing	Signal transduction
+04392	Hippo signaling pathway - multiple species	4.94451318764014	Environmental Information Processing	Signal transduction
+04510	Focal adhesion	4.62469830482651	Cellular Processes	Cellular community - eukaryotes
+04512	ECM-receptor interaction	4.2618957220607	Environmental Information Processing	Signaling molecules and interaction
+04514	Cell adhesion molecules	4.32284760850111	Environmental Information Processing	Signaling molecules and interaction
+04517	IgSF CAM signaling	4.52269497783415	Environmental Information Processing	Signaling molecules and interaction
+04518	Integrin signaling	4.45891698229956	Environmental Information Processing	Signaling molecules and interaction
+04519	Cadherin signaling	4.36850099910648	Environmental Information Processing	Signaling molecules and interaction
+04520	Adherens junction	4.86817322775946	Cellular Processes	Cellular community - eukaryotes
+04530	Tight junction	4.64425073391429	Cellular Processes	Cellular community - eukaryotes
+04540	Gap junction	4.55392094852101	Cellular Processes	Cellular community - eukaryotes
+04550	Signaling pathways regulating pluripotency of stem cells	4.68137235439382	Cellular Processes	Cellular community - eukaryotes
+04610	Complement and coagulation cascades	3.16657790446264	Organismal Systems	Immune system
+04611	Platelet activation	4.5451478676434	Organismal Systems	Immune system
+04612	Antigen processing and presentation	4.55788763274985	Organismal Systems	Immune system
+04613	Neutrophil extracellular trap formation	4.36035877654958	Organismal Systems	Immune system
+04614	Renin-angiotensin system	4.0173161632689	Organismal Systems	Endocrine system
+04620	Toll-like receptor signaling pathway	4.56095724667717	Organismal Systems	Immune system
+04621	NOD-like receptor signaling pathway	4.50884769965904	Organismal Systems	Immune system
+04622	RIG-I-like receptor signaling pathway	4.83530766419863	Organismal Systems	Immune system
+04623	Cytosolic DNA-sensing pathway	4.72863786913515	Organismal Systems	Immune system
+04625	C-type lectin receptor signaling pathway	4.69827175864444	Organismal Systems	Immune system
+04630	JAK-STAT signaling pathway	4.36344473991862	Environmental Information Processing	Signal transduction
+04640	Hematopoietic cell lineage	4.08535621629711	Organismal Systems	Immune system
+04650	Natural killer cell mediated cytotoxicity	4.26855160194099	Organismal Systems	Immune system
+04657	IL-17 signaling pathway	4.24111884504851	Organismal Systems	Immune system
+04658	Th1 and Th2 cell differentiation	4.52749326153284	Organismal Systems	Immune system
+04659	Th17 cell differentiation	4.5566672555136	Organismal Systems	Immune system
+04660	T cell receptor signaling pathway	4.79856447982822	Organismal Systems	Immune system
+04662	B cell receptor signaling pathway	4.39593738252761	Organismal Systems	Immune system
+04664	Fc epsilon RI signaling pathway	4.66091600430252	Organismal Systems	Immune system
+04666	Fc gamma R-mediated phagocytosis	4.79573605771655	Organismal Systems	Immune system
+04668	TNF signaling pathway	4.800722070231	Environmental Information Processing	Signal transduction
+04670	Leukocyte transendothelial migration	4.41344028939198	Organismal Systems	Immune system
+04672	Intestinal immune network for IgA production	3.94492516068596	Organismal Systems	Immune system
+04710	Circadian rhythm	5.1701172715905	Organismal Systems	Environmental adaptation
+04713	Circadian entrainment	4.55055670875447	Organismal Systems	Environmental adaptation
+04714	Thermogenesis	4.99515417145462	Organismal Systems	Environmental adaptation
+04720	Long-term potentiation	4.62121087035987	Organismal Systems	Nervous system
+04721	Synaptic vesicle cycle	4.29838823712405	Organismal Systems	Nervous system
+04722	Neurotrophin signaling pathway	5.01525619077413	Organismal Systems	Nervous system
+04723	Retrograde endocannabinoid signaling	4.69468716079585	Organismal Systems	Nervous system
+04724	Glutamatergic synapse	4.47092042762741	Organismal Systems	Nervous system
+04725	Cholinergic synapse	4.51903822394336	Organismal Systems	Nervous system
+04726	Serotonergic synapse	4.20923036925385	Organismal Systems	Nervous system
+04727	GABAergic synapse	4.33074908550357	Organismal Systems	Nervous system
+04728	Dopaminergic synapse	4.63122774952864	Organismal Systems	Nervous system
+04730	Long-term depression	4.66391552356991	Organismal Systems	Nervous system
+04740	Olfactory transduction	4.15915989267061	Organismal Systems	Sensory system
+04742	Taste transduction	4.29786819313998	Organismal Systems	Sensory system
+04744	Phototransduction	4.15033532230713	Organismal Systems	Sensory system
+04750	Inflammatory mediator regulation of TRP channels	4.57443011765131	Organismal Systems	Sensory system
+04810	Regulation of actin cytoskeleton	4.44631860875797	Cellular Processes	Cell motility
+04814	Motor proteins	4.02071411906662	Cellular Processes	Cell motility
+04820	Cytoskeleton in muscle cells	3.81542020740879	Cellular Processes	Cell motility
+04910	Insulin signaling pathway	4.78075313196138	Organismal Systems	Endocrine system
+04911	Insulin secretion	4.16872222104988	Organismal Systems	Endocrine system
+04912	GnRH signaling pathway	4.64566596313694	Organismal Systems	Endocrine system
+04913	Ovarian steroidogenesis	3.73577427423029	Organismal Systems	Endocrine system
+04914	Progesterone-mediated oocyte maturation	4.64427020576496	Organismal Systems	Endocrine system
+04915	Estrogen signaling pathway	4.22781754955397	Organismal Systems	Endocrine system
+04916	Melanogenesis	4.61138075555739	Organismal Systems	Endocrine system
+04917	Prolactin signaling pathway	4.45692398543655	Organismal Systems	Endocrine system
+04918	Thyroid hormone synthesis	3.79010026803025	Organismal Systems	Endocrine system
+04919	Thyroid hormone signaling pathway	4.76283345344783	Organismal Systems	Endocrine system
+04920	Adipocytokine signaling pathway	4.54863229631958	Organismal Systems	Endocrine system
+04921	Oxytocin signaling pathway	4.4934720605744	Organismal Systems	Endocrine system
+04922	Glucagon signaling pathway	4.40859935919601	Organismal Systems	Endocrine system
+04923	Regulation of lipolysis in adipocytes	4.17063922771191	Organismal Systems	Endocrine system
+04924	Renin secretion	4.42242983267363	Organismal Systems	Endocrine system
+04925	Aldosterone synthesis and secretion	4.16920617996694	Organismal Systems	Endocrine system
+04926	Relaxin signaling pathway	4.73029707047785	Organismal Systems	Endocrine system
+04927	Cortisol synthesis and secretion	4.00955418449689	Organismal Systems	Endocrine system
+04928	Parathyroid hormone synthesis, secretion and action	4.59727335966929	Organismal Systems	Endocrine system
+04929	GnRH secretion	4.55761188850306	Organismal Systems	Endocrine system
+04930	Type II diabetes mellitus	4.28025942046387	Human Diseases	Endocrine and metabolic disease
+04931	Insulin resistance	4.73192336620815	Human Diseases	Endocrine and metabolic disease
+04932	Non-alcoholic fatty liver disease	4.95968794970549	Human Diseases	Endocrine and metabolic disease
+04933	AGE-RAGE signaling pathway in diabetic complications	4.81326846538872	Human Diseases	Endocrine and metabolic disease
+04934	Cushing syndrome	4.49456506553241	Human Diseases	Endocrine and metabolic disease
+04935	Growth hormone synthesis, secretion and action	4.52976346493304	Organismal Systems	Endocrine system
+04936	Alcoholic liver disease	4.61190021036941	Human Diseases	Endocrine and metabolic disease
+04940	Type I diabetes mellitus	3.96000532677803	Human Diseases	Endocrine and metabolic disease
+04950	Maturity onset diabetes of the young	2.75838556804078	Human Diseases	Endocrine and metabolic disease
+04960	Aldosterone-regulated sodium reabsorption	4.28197609969073	Organismal Systems	Excretory system
+04961	Endocrine and other factor-regulated calcium reabsorption	4.33021753624445	Organismal Systems	Excretory system
+04962	Vasopressin-regulated water reabsorption	4.71023268628614	Organismal Systems	Excretory system
+04964	Proximal tubule bicarbonate reclamation	4.26631091851317	Organismal Systems	Excretory system
+04966	Collecting duct acid secretion	4.12045707053011	Organismal Systems	Excretory system
+04970	Salivary secretion	3.85014527967743	Organismal Systems	Digestive system
+04971	Gastric acid secretion	4.11047618172488	Organismal Systems	Digestive system
+04972	Pancreatic secretion	3.42110687150192	Organismal Systems	Digestive system
+04973	Carbohydrate digestion and absorption	3.86729277704472	Organismal Systems	Digestive system
+04974	Protein digestion and absorption	3.39386232557832	Organismal Systems	Digestive system
+04975	Fat digestion and absorption	3.03408473697063	Organismal Systems	Digestive system
+04976	Bile secretion	3.25851333650014	Organismal Systems	Digestive system
+04977	Vitamin digestion and absorption	3.67461160410382	Organismal Systems	Digestive system
+04978	Mineral absorption	4.2067567120038	Organismal Systems	Digestive system
+04979	Cholesterol metabolism	3.70608851794625	Organismal Systems	Digestive system
+04980	Cobalamin transport and metabolism	4.83090400115914	Organismal Systems	Digestive system
+04981	Folate transport and metabolism	4.06405813750419	Organismal Systems	Digestive system
+05010	Alzheimer disease	4.85759230976167	Human Diseases	Neurodegenerative disease
+05012	Parkinson disease	4.91854067504432	Human Diseases	Neurodegenerative disease
+05014	Amyotrophic lateral sclerosis	4.8846494933839	Human Diseases	Neurodegenerative disease
+05016	Huntington disease	4.91901475966227	Human Diseases	Neurodegenerative disease
+05017	Spinocerebellar ataxia	4.81823464678505	Human Diseases	Neurodegenerative disease
+05020	Prion disease	4.76111135683694	Human Diseases	Neurodegenerative disease
+05022	Pathways of neurodegeneration - multiple diseases	4.82334994094784	Human Diseases	Neurodegenerative disease
+05030	Cocaine addiction	4.34094923051818	Human Diseases	Substance dependence
+05031	Amphetamine addiction	4.32708960155997	Human Diseases	Substance dependence
+05032	Morphine addiction	4.39752321731452	Human Diseases	Substance dependence
+05033	Nicotine addiction	3.78602103617779	Human Diseases	Substance dependence
+05034	Alcoholism	4.52965956922915	Human Diseases	Substance dependence
+05100	Bacterial invasion of epithelial cells	4.87324712451587	Human Diseases	Infectious disease: bacterial
+05110	Vibrio cholerae infection	4.72011894093588	Human Diseases	Infectious disease: bacterial
+05120	Epithelial cell signaling in Helicobacter pylori infection	4.76439845866902	Human Diseases	Infectious disease: bacterial
+05130	Pathogenic Escherichia coli infection	4.65847593261548	Human Diseases	Infectious disease: bacterial
+05131	Shigellosis	4.87436374512046	Human Diseases	Infectious disease: bacterial
+05132	Salmonella infection	4.85654362378299	Human Diseases	Infectious disease: bacterial
+05133	Pertussis	4.37344970009844	Human Diseases	Infectious disease: bacterial
+05134	Legionellosis	4.68900519566712	Human Diseases	Infectious disease: bacterial
+05135	Yersinia infection	4.9117307900394	Human Diseases	Infectious disease: bacterial
+05140	Leishmaniasis	4.43068116129492	Human Diseases	Infectious disease: parasitic
+05142	Chagas disease	4.72140637836619	Human Diseases	Infectious disease: parasitic
+05143	African trypanosomiasis	3.76002720750442	Human Diseases	Infectious disease: parasitic
+05144	Malaria	4.02231707340541	Human Diseases	Infectious disease: parasitic
+05145	Toxoplasmosis	4.77196898653508	Human Diseases	Infectious disease: parasitic
+05146	Amoebiasis	4.19820497919031	Human Diseases	Infectious disease: parasitic
+05150	Staphylococcus aureus infection	3.05326326427258	Human Diseases	Infectious disease: bacterial
+05152	Tuberculosis	4.60077078887088	Human Diseases	Infectious disease: bacterial
+05160	Hepatitis C	4.74163541152351	Human Diseases	Infectious disease: viral
+05161	Hepatitis B	4.85930592821238	Human Diseases	Infectious disease: viral
+05162	Measles	4.75181620576475	Human Diseases	Infectious disease: viral
+05163	Human cytomegalovirus infection	4.7282014529188	Human Diseases	Infectious disease: viral
+05164	Influenza A	4.61080776918028	Human Diseases	Infectious disease: viral
+05165	Human papillomavirus infection	4.72801818715503	Human Diseases	Infectious disease: viral
+05166	Human T-cell leukemia virus 1 infection	4.71199947003576	Human Diseases	Infectious disease: viral
+05167	Kaposi sarcoma-associated herpesvirus infection	4.78505534194514	Human Diseases	Infectious disease: viral
+05168	Herpes simplex virus 1 infection	4.77784933631711	Human Diseases	Infectious disease: viral
+05169	Epstein-Barr virus infection	4.75646044220056	Human Diseases	Infectious disease: viral
+05170	Human immunodeficiency virus 1 infection	4.76030860852079	Human Diseases	Infectious disease: viral
+05171	Coronavirus disease - COVID-19	4.56375336293297	Human Diseases	Infectious disease: viral
+05200	Pathways in cancer	4.6729057873782	Human Diseases	Cancer: overview
+05202	Transcriptional misregulation in cancer	4.33878566833905	Human Diseases	Cancer: overview
+05203	Viral carcinogenesis	4.79917357240109	Human Diseases	Cancer: overview
+05204	Chemical carcinogenesis - DNA adducts	3.34846063777754	Human Diseases	Cancer: overview
+05205	Proteoglycans in cancer	4.75164821484142	Human Diseases	Cancer: overview
+05206	MicroRNAs in cancer	4.48954546614848	Human Diseases	Cancer: overview
+05207	Chemical carcinogenesis - receptor activation	4.30544370784448	Human Diseases	Cancer: overview
+05208	Chemical carcinogenesis - reactive oxygen species	4.93618566179409	Human Diseases	Cancer: overview
+05210	Colorectal cancer	5.02602235792861	Human Diseases	Cancer: specific types
+05211	Renal cell carcinoma	5.1180796654941	Human Diseases	Cancer: specific types
+05212	Pancreatic cancer	5.02696917406628	Human Diseases	Cancer: specific types
+05213	Endometrial cancer	5.08431104057513	Human Diseases	Cancer: specific types
+05214	Glioma	4.86631026840619	Human Diseases	Cancer: specific types
+05215	Prostate cancer	4.71706135477399	Human Diseases	Cancer: specific types
+05216	Thyroid cancer	4.9908273258691	Human Diseases	Cancer: specific types
+05217	Basal cell carcinoma	4.78871036726826	Human Diseases	Cancer: specific types
+05218	Melanoma	4.60723033001297	Human Diseases	Cancer: specific types
+05219	Bladder cancer	4.66502127034772	Human Diseases	Cancer: specific types
+05220	Chronic myeloid leukemia	5.1258726913251	Human Diseases	Cancer: specific types
+05221	Acute myeloid leukemia	4.87109700150467	Human Diseases	Cancer: specific types
+05222	Small cell lung cancer	4.85592313216494	Human Diseases	Cancer: specific types
+05223	Non-small cell lung cancer	4.99303584227291	Human Diseases	Cancer: specific types
+05224	Breast cancer	4.67585433815914	Human Diseases	Cancer: specific types
+05225	Hepatocellular carcinoma	4.87570066242388	Human Diseases	Cancer: specific types
+05226	Gastric cancer	4.60386763318486	Human Diseases	Cancer: specific types
+05230	Central carbon metabolism in cancer	4.7305257833666	Human Diseases	Cancer: overview
+05231	Choline metabolism in cancer	4.86609084235758	Human Diseases	Cancer: overview
+05235	PD-L1 expression and PD-1 checkpoint pathway in cancer	4.87309110102715	Human Diseases	Cancer: overview
+05310	Asthma	3.9219008273125	Human Diseases	Immune disease
+05320	Autoimmune thyroid disease	3.8137357432729	Human Diseases	Immune disease
+05321	Inflammatory bowel disease	4.21268403580389	Human Diseases	Immune disease
+05322	Systemic lupus erythematosus	4.2147982672886	Human Diseases	Immune disease
+05323	Rheumatoid arthritis	4.14943297049196	Human Diseases	Immune disease
+05330	Allograft rejection	4.0938021280725	Human Diseases	Immune disease
+05332	Graft-versus-host disease	3.95814382655566	Human Diseases	Immune disease
+05340	Primary immunodeficiency	3.91043830766092	Human Diseases	Immune disease
+05410	Hypertrophic cardiomyopathy	4.12479246573128	Human Diseases	Cardiovascular disease
+05412	Arrhythmogenic right ventricular cardiomyopathy	4.33990895183942	Human Diseases	Cardiovascular disease
+05414	Dilated cardiomyopathy	4.12755838094386	Human Diseases	Cardiovascular disease
+05415	Diabetic cardiomyopathy	4.86041341859626	Human Diseases	Cardiovascular disease
+05416	Viral myocarditis	4.48012424716517	Human Diseases	Cardiovascular disease
+05417	Lipid and atherosclerosis	4.53817497114897	Human Diseases	Cardiovascular disease
+05418	Fluid shear stress and atherosclerosis	4.77861828710725	Human Diseases	Cardiovascular disease
