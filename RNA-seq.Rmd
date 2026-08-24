@@ -1,0 +1,169 @@
+---
+title: "RNA-seq"
+author: "Moises A. Rojas"
+date: "18/08/2026"
+output:
+  html_document:
+    toc: true
+---
+
+```{r setup}
+suppressMessages(library(tidyverse)) #tidy ecosystem
+suppressMessages(library(ggplot2)) #plotting
+suppressMessages(library(patchwork)) #side-by-side plotting
+suppressMessages(library(RColorBrewer)) #color palettes
+suppressWarnings(library(colorRamp2)) #color gradients
+suppressMessages(library(biomaRt)) #ensembl convertion
+suppressPackageStartupMessages(library(ComplexHeatmap)) #heatmap plot
+suppressMessages(library(edgeR)) #DGE analysis
+
+# ggplot(...) + ... + theme_local()
+theme_local <- function() {
+  theme_classic() +
+    theme(
+      legend.box.spacing = unit(0.5, "pt"), #space between plot and legend
+      legend.key.spacing.x = unit(0.1, "pt"), #space between columns
+      legend.key.spacing.y = unit(0.1, "pt"), #space between rows
+      legend.spacing.y = unit(0.75, "pt"), #space between legend titles
+      legend.key.height = unit(3, units = "mm"),
+      legend.key.width = unit(4, units = "mm")
+    )
+}
+```
+
+## Import data
+
+```{r import}
+# Read edgeR object (generated in the cluster)
+dge <- readRDS("RNA-seq/data/neurodeg_DGE.rds")
+glimpse(dge)
+```
+
+## Data post-processing
+
+### Add metadata
+
+```{r md}
+# Load data from the NCBI SRA exploration (python codes)
+metadata <- read.csv("RNA-seq/data/metadata_harmonized.csv", sep = ",", header = TRUE)
+
+# Extract experiment IDs
+srxs <- rownames(dge$samples)
+
+# Combine data
+srxs <- tibble(experiment = srxs)
+srxs <- left_join(srxs, metadata, by = "experiment")
+
+# There are some repeated entries..
+#srxs %>% add_count(experiment) %>% filter(n > 1)
+srxs <- srxs %>% distinct(experiment, .keep_all = TRUE)
+
+# Add treatments
+srxs <- srxs %>%
+    left_join(dge$samples %>%
+                rownames_to_column("experiment") %>%
+                dplyr::select(experiment, group),
+    by = "experiment")
+
+# Explore metadata:
+srxs %>%
+  filter(age != "" & age != "--") %>%
+  dplyr::select(SRAStudy, experiment, library_layout, library_selection, tissue, age, sex, group) %>%
+  arrange(SRAStudy) %>%
+  knitr::kable("simple") 
+```
+
+### Filter QC
+
+```{r qc}
+# Data for QC
+qc <- neurodeg_obs[, c(
+  "featurecounts_Percent_Assigned_",
+  "featurecounts_Percent_Duplicates",
+  "featurecounts_Percent_Assigned_O",
+  "featurecounts_Percent_Assigned_M",
+  "featurecounts_Percent_Assigned_MO",
+  "markdup_percent_duplication",
+  "markdup_estimated_library_size",
+  "star_percent_uniquely_mapped_reads",
+  ""
+)]
+
+# Filter low-expression genes
+#keep <- filterByExpr(dge, group = dge$samples$group)
+
+# Normalize raw counts (TMMs) -- or #normLibSizes()
+dge <- calcNormFactors(dge, method = "TMM")
+#head(getNormLibSizes(dge))
+
+#cpm_values <- cpm(dge) #log=FALSE
+```
+
+### Differential gene expression
+
+Proceed to differential gene expression (DGE) analysis using the edgeR Quasi-Likelihood pipeline.
+
+```{r dge}
+# GLM approach
+# 0+: only include a column for each group, not the intercept
+#    design = ~ age + sex + treatment
+design <- model.matrix(~0+group, data = dge$samples)
+#colnames(design) <- levels(dge$samples$group)
+glimpse(design)
+# `groupNeurodegenerative` is the difference between Neurodegenerative and Healthy
+
+# Make contrasts
+contrast <- makeContrasts(Neurodegenerative - Healthy, levels = design)
+
+# Estimate dispersions (as a negative binomial distribution)
+dge <- estimateDisp(dge, design)
+dge$common.dispersion
+plotBCV(dge)
+
+# Perform quasi-likelihood F-tests
+fit <- glmQLFit(dge, design, robust = TRUE)
+plotQLDisp(fit)
+res <- glmQLFTest(fit, contrast = contrast) #glmLRT() #coef = "groupNeurodegenerative"
+topTags(res)
+
+# Interpretation of logFC:
+# 2^logFC: >1 fold higher in Neurodegenerative than Healthy
+# otherwise, if a gene had <1, ie. 0.25 means 4-fold lower in N than H
+
+# Interpretation of F statistic:
+# measures how strongly the data support a difference between the two groups
+# large F is stronger evidence that the groups differ
+# is not directional
+
+# Save FDR values
+res_table <- topTags(res, n = Inf, adjust.method = "BH")$table
+table(res_table$FDR < 0.05)
+
+# Get significant genes
+signif <- res_table[res_table$FDR < 0.05 & abs(res_table$logFC) >= 1, ]
+# Check pseudogenes, ie PRAMEF31P
+mart <- useEnsembl("genes", "hsapiens_gene_ensembl")
+genes <- signif$gene_id
+annotation <- getBM(
+  attributes = c(
+    "ensembl_gene_id",
+    "external_gene_name",
+    "gene_biotype",
+    "description"
+  ),
+  filters = "ensembl_gene_id",
+  values = genes,
+  mart = mart
+)
+annotation[grepl("pseudogene", annotation$gene_biotype), ]
+
+
+
+# Annotate signif genes? ie. NLRP
+topTable(fit, adjust = "BH", resort.by = "P")
+
+# Run the PCA (irlba for large matrices)
+#set.seed(207)
+#pca <- prcomp(t(mat_corrected)) #irlba::prcomp_irlba(mat, n, center = FALSE, scale = TRUE)
+```
+
