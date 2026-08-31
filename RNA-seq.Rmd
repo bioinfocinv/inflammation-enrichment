@@ -14,6 +14,9 @@ suppressMessages(library(patchwork)) #side-by-side plotting
 suppressMessages(library(RColorBrewer)) #color palettes
 suppressWarnings(library(colorRamp2)) #color gradients
 suppressMessages(library(biomaRt)) #ensembl convertion
+suppressMessages(library(remart)) #ensembl convertion v2
+suppressWarnings(library(ggpubr)) #stats & plots
+suppressWarnings(library(ggbeeswarm)) #scatter plots
 suppressPackageStartupMessages(library(ComplexHeatmap)) #heatmap plot
 suppressMessages(library(edgeR)) #DGE analysis
 
@@ -31,39 +34,39 @@ theme_local <- function() {
 }
 ```
 
-## Import data
+## Import DGE data
 
 ```{r import}
-# Read edgeR object (generated in the cluster)
+# Read edgeR object (generated on the cluster)
 dge <- readRDS("RNA-seq/data/neurodeg_DGE.rds")
 glimpse(dge)
 ```
 
 ## Data post-processing
 
-### Add metadata
+### Load metadata
 
-```{r md}
-# Load data from the NCBI SRA exploration (python codes)
+```{r sramd}
+# Load metadata obtained from the NCBI SRA (python codes)
 metadata <- read.csv("RNA-seq/data/metadata_harmonized.csv", sep = ",", header = TRUE)
 
-# Extract experiment IDs
+# Extract sample/experiment IDs in DGE
 srxs <- rownames(dge$samples)
 
 # Combine data
 srxs <- tibble(experiment = srxs)
 srxs <- left_join(srxs, metadata, by = "experiment")
 
-# There are some repeated entries..
+# There are repeated entries?
 #srxs %>% add_count(experiment) %>% filter(n > 1)
-srxs <- srxs %>% distinct(experiment, .keep_all = TRUE)
+#srxs <- srxs %>% distinct(experiment, .keep_all = TRUE)
 
-# Add treatments
-srxs <- srxs %>%
-    left_join(dge$samples %>%
-                rownames_to_column("experiment") %>%
-                dplyr::select(experiment, group),
-    by = "experiment")
+# Add groups as treatments
+srxs <- left_join(srxs, dge$samples %>%
+                    rownames_to_column("experiment") %>%
+                    dplyr::select(experiment, group),
+                  by = "experiment") %>%
+  dplyr::select(where(~ !all(is.na(.) | . == ""))) #remove columns with NA values
 
 # Explore metadata:
 srxs %>%
@@ -73,97 +76,331 @@ srxs %>%
   knitr::kable("simple") 
 ```
 
-### Filter QC
+### Fill metadata
 
-```{r qc}
-# Data for QC
-qc <- neurodeg_obs[, c(
-  "featurecounts_Percent_Assigned_",
-  "featurecounts_Percent_Duplicates",
-  "featurecounts_Percent_Assigned_O",
-  "featurecounts_Percent_Assigned_M",
-  "featurecounts_Percent_Assigned_MO",
-  "markdup_percent_duplication",
-  "markdup_estimated_library_size",
-  "star_percent_uniquely_mapped_reads",
-  ""
-)]
+```{r fillmd}
+# Load cohort -filtered- data
+design <- read.csv("RNA-seq/data/neurodeg_design.tsv", sep = "\t", header = TRUE)
+design <- design %>% rownames_to_column("experiment")
+glimpse(design)
 
-# Filter low-expression genes
-#keep <- filterByExpr(dge, group = dge$samples$group)
+# Save sample IDs without `Tissue_subtype`
+samples_notsub <- design %>%
+  dplyr::filter(is.na(Tissue_subtype)) %>%
+  dplyr::select(experiment) %>%
+  pull()
 
-# Normalize raw counts (TMMs) -- or #normLibSizes()
-dge <- calcNormFactors(dge, method = "TMM")
-#head(getNormLibSizes(dge))
+# Function to parse `tissue` from the extracted metadata
+fx_parse_tissue <- function(x) {
+  case_when(
+    # set keywords to return the string after '|'
+    str_detect(x, regex("control|disease|,", ignore_case = TRUE)) &
+      str_detect(x, fixed("|")) ~ str_trim(str_extract(x, "(?<=\\|).*")),
+    # everything else with '|' return the string before the pattern
+    str_detect(x, fixed("|")) ~ str_trim(str_extract(x, "^[^|]+")),
+    TRUE ~ x #return the original string instead
+  )
+}
 
-#cpm_values <- cpm(dge) #log=FALSE
+# Populate `tissue_subtype` column
+srxs_tissuesub <- srxs %>%
+  dplyr::filter(experiment %in% samples_notsub) %>% #only NA subtypes
+  dplyr::select(SRAStudy, experiment, tissue) %>%
+  dplyr::mutate(tissue_subtype = fx_parse_tissue(tissue)) #parse tissue
+# Force first letter to capital
+srxs_tissuesub <- srxs_tissuesub %>%
+  dplyr::mutate(tissue_subtype = str_replace(tissue_subtype, "^([a-z])", ~ str_to_upper(.x)))
+
+# Add parsed metadata
+design <- design %>%
+  left_join(srxs_tissuesub %>% dplyr::select(experiment, tissue_subtype), by = "experiment") %>%
+  #use `Tissue_subtype` if it is not NA; otherwise use `tissue_subtype`
+  dplyr::mutate(Tissue_subtype = coalesce(Tissue_subtype, tissue_subtype)) %>%
+  dplyr::select(-tissue_subtype)
+
+# Sanity check (wiki tables too)
+#table(design$Tissue_subtype, useNA = "ifany")
+design %>%
+  count(Tissue, Tissue_subtype) %>%
+  knitr::kable("simple")
+design %>%
+  count(sra_study_acc, Tissue, Tissue_subtype, Disease_subtype) %>%
+  arrange(Tissue, sra_study_acc)
 ```
 
-### Differential gene expression
+## Differential gene expression
 
-Proceed to differential gene expression (DGE) analysis using the edgeR Quasi-Likelihood pipeline.
+### Sample-level QC
+
+First, we filter the samples by library size.
+
+```{r samqc}
+# Explore the lib size distribution
+summary(dge$samples$lib.size)
+dge$samples[dge$samples$lib.size < 1e5, ]
+
+# Remove extremely low library sizes (min 100,000 reads)
+keep_libsize <- dge$samples$lib.size >= 1e5
+dge <- dge[, keep_libsize]
+```
+
+### Normalize library size
+
+Then, we normalize the library sizes of the samples.
+
+```{r norm}
+# Filter low-expression genes across samples
+keep_low <- filterByExpr(dge, group = dge$samples$group)
+table(keep_low)
+dge <- dge[keep_low, , keep.lib.sizes = FALSE]
+
+# Normalize lib size by the trimmed mean of M-values
+dge <- calcNormFactors(dge, method = "TMM")
+head(getNormLibSizes(dge))
+
+# Check outlier samples again
+dge$samples %>%
+  arrange(desc(norm.factors)) %>%
+  head()
+outlier_samples <- dge$samples %>%
+  rownames_to_column("experiment") %>%
+  dplyr::filter(norm.factors > 5) %>%
+  dplyr::select(experiment) %>%
+  pull()
+
+if (length(outlier_samples) > 0) {
+  # Remove outlier samples
+  dge <- dge[, !colnames(dge) %in% outlier_samples]
+  dge$samples %>%
+    arrange(desc(norm.factors)) %>%
+    head()
+  # Iterate
+  print("Iterating normalization...")
+  keep_low <- filterByExpr(dge, group = dge$samples$group)
+  table(keep_low)
+  dge <- dge[keep_low, , keep.lib.sizes = FALSE]
+  #need to norm again:: dge <- calcNormFactors(dge, method = "TMM")
+  #dge$samples %>%
+  #  arrange(desc(norm.factors)) %>%
+  #  head()
+  print(" done.")
+  outlier_samples <- vector()
+} else {
+  print("Iteration performed.")
+}
+```
+
+Explore the distribution of library sizes in the filtered samples.
+
+```{r plotdist}
+# Histogram plot
+dge$samples %>%
+  ggplot(aes(x = group, y = lib.size, color = group)) +
+  geom_quasirandom(size = 3, alpha = 0.8) +
+  geom_boxplot(fill = NA, outlier.size = 0, outliers = FALSE) +
+  scale_y_log10(labels = scales::label_number(scale = 1e-6, suffix = "M")) +
+  scale_color_manual(values = c("#98d277", "#b15928")) +
+  stat_compare_means(method = "t.test", label = "p.signif", ref.group = ".all.",
+                     vjust = 0.1, bracket.size = 0.25, tip.length = 0.01, size = 3,
+                     comparisons = list(c("Healthy", "Neurodegenerative"))) +
+  guides(color = "none") +
+  labs(title = "Library size distribution in the filtered samples",
+       subtitle = paste0("Samples that passed filters: ", ncol(dge)),
+       x = "Group", y = "Library size (log10)") +
+  theme_local()
+#ggsave("libsizedist_SRA16.pdf", height = 5, width = 5)
+```
+
+### Pipeline use case
+
+Use case filtering by an individual study: Brain - Alzheimer’s disease.
+
+```{r usecase}
+# SRA options: SRP034831, or SRP056604 (*keeps all initial number of samples)
+usecase <- design %>%
+  #dplyr::filter(Tissue == "Brain") %>%
+  #dplyr::filter(sra_study_acc == "SRP034831" | sra_study_acc == "SRP056604"
+  #              | sra_study_acc == "SRP061397" | sra_study_acc == "SRP142295") %>%
+  dplyr::filter(sra_study_acc == "SRP142295") %>%
+  dplyr::select(experiment) %>%
+  pull()
+# Remove sample SRX1114576 belonging to HD from study SRP061397
+usecase <- usecase[!usecase %in% "SRX1114576"]
+
+# Filter samples by selected study, then normalize
+dge2 <- dge[, colnames(dge) %in% usecase]
+keep_low2 <- filterByExpr(dge2, group = dge2$samples$group)
+table(keep_low2)
+dge2 <- dge2[keep_low2, , keep.lib.sizes = FALSE]
+dge2 <- calcNormFactors(dge2, method = "TMM")
+table(dge2$samples$group)
+
+# Add variables to the model
+dge2$samples$study <- factor("SRP142295")
+dge2$samples$tissue <- factor("Brain")
+table(dge2$samples$study, dge2$samples$group)
+glimpse(dge2$samples)
+```
+
+### Normalize counts
+
+Then, we normalize the matrix of raw counts.
+
+```{r cpm}
+# Use log2 counts per million
+cpms <- cpm(dge2, log = TRUE)
+glimpse(cpms)
+```
+
+### Perform DGE
+
+Perform differential gene expression (DGE) analysis using the edgeR Quasi-Likelihood pipeline.
 
 ```{r dge}
 # GLM approach
 # 0+: only include a column for each group, not the intercept
-#    design = ~ age + sex + treatment
-design <- model.matrix(~0+group, data = dge$samples)
-#colnames(design) <- levels(dge$samples$group)
-glimpse(design)
-# `groupNeurodegenerative` is the difference between Neurodegenerative and Healthy
+# Q1: What is the overall neurodegenerative signature?
+# ~ Tissue + sra_study_acc + group
+model <- model.matrix(~0 + group, data = dge2$samples)
+colnames(model) <- levels(dge2$samples$group)
+glimpse(model)
 
 # Make contrasts
-contrast <- makeContrasts(Neurodegenerative - Healthy, levels = design)
+contrast <- makeContrasts(Neurodegenerative - Healthy, levels = model)
 
 # Estimate dispersions (as a negative binomial distribution)
-dge <- estimateDisp(dge, design)
-dge$common.dispersion
-plotBCV(dge)
+dge2 <- estimateDisp(dge2, model)
+dge2$common.dispersion
+plotBCV(dge2)
+
+#plotMDS(dge2, labels = dge2$samples$group, col = ifelse(dge2$samples$group == "Healthy", "steelblue", "firebrick"))
 
 # Perform quasi-likelihood F-tests
-fit <- glmQLFit(dge, design, robust = TRUE)
+fit <- glmQLFit(dge2, model, robust = TRUE)
 plotQLDisp(fit)
-res <- glmQLFTest(fit, contrast = contrast) #glmLRT() #coef = "groupNeurodegenerative"
+res <- glmQLFTest(fit, contrast = contrast)
 topTags(res)
+```
 
-# Interpretation of logFC:
-# 2^logFC: >1 fold higher in Neurodegenerative than Healthy
-# otherwise, if a gene had <1, ie. 0.25 means 4-fold lower in N than H
+### Significant genes
 
-# Interpretation of F statistic:
-# measures how strongly the data support a difference between the two groups
-# large F is stronger evidence that the groups differ
-# is not directional
+* Interpretation of logFC:
+- 2^logFC: >1 fold higher in Neurodegenerative than Healthy
+- otherwise, if a gene had <0, ie. -0.25 means 4-fold lower in N than H
 
-# Save FDR values
+* Interpretation of F statistic:
+- measures how strongly the data support a difference between the two groups
+- large F is stronger evidence that the groups differ
+- is not directional
+
+* Criteria for DEGs were as follows:
+- adjusted p-value < 0.05 and |log2(FC)| > 1
+
+```{r signif}
+# Save the FDR values
 res_table <- topTags(res, n = Inf, adjust.method = "BH")$table
 table(res_table$FDR < 0.05)
 
-# Get significant genes
-signif <- res_table[res_table$FDR < 0.05 & abs(res_table$logFC) >= 1, ]
+# Explore
+res_table %>%
+  arrange(FDR) %>%
+  slice(1:10) %>%
+  dplyr::select(gene_id, gene_name, logFC, F, PValue, FDR)
+
+# Get only significant genes
+signif <- res_table[res_table$FDR < 0.05 & abs(res_table$logFC) > 1, ]
+
+# Annotate signif genes? ie. NLRP
+#topTable(fit, adjust = "BH", resort.by = "P")
+```
+
+### Volcano plot
+
+Plot DGEs, where the x-axis is log2|FC| and the y-axis is -log10(p-value). Red dots represent up-regulated genes, blue dots represent down-regulated genes, and black dots represent non-significantly expressed genes.
+
+```{r volcano}
+# Mark upreg/downreg genes
+res_table$signif <- "Not significant"
+res_table$signif[res_table$FDR < 0.05 & res_table$logFC > 1] <- "Upregulated" #p<0.01
+res_table$signif[res_table$FDR < 0.05 & res_table$logFC <= -1] <- "Downregulated"
+table(res_table$signif)
+
+#res_table$upreg <- res_table$FDR < 0.05 & res_table$logFC >= 1
+#res_table$downreg <- res_table$FDR < 0.05 & res_table$logFC <= -1
+#res_table$signif <- "Not significant"
+#res_table$signif[res_table$upreg] <- "Upregulated"
+#res_table$signif[res_table$downreg] <- "Downregulated"
+#log2FC (-0.5, 0.5) ?
+
+# Plot with dot labels
+#plot_volcano_v1 <- 
+res_table %>%
+  ggplot(aes(x = logFC, y = -log10(FDR))) +
+  geom_point(aes(color = signif), alpha = 0.5, size = 1.5) +
+  geom_vline(xintercept = c(-1, 1), color = "grey50", linetype = "dashed", linewidth = 0.2) +
+  geom_hline(yintercept = -log10(0.05), color = "grey50", linetype = "dashed", linewidth = 0.2) +
+  ggrepel::geom_text_repel(data = res_table %>% dplyr::filter(signif != "Not significant"),
+                           aes(x = logFC, y = -log10(FDR), label = gene_name),
+                           hjust = -0.2, size = 2, max.overlaps = Inf, point.padding = 0.1,
+                           min.segment.length = 0.1, segment.size = 0.05) +
+  scale_color_manual("", values = c("Not significant" = "grey70",
+                                    "Upregulated" = "red", "Downregulated" = "blue")) +
+  labs(title = "Neurodegenerative disease vs Healthy controls",
+       subtitle = paste0("Total SRA studies: ", length(unique(design$sra_study_acc)),
+                         "\nTotal samples: ", ncol(dge)),
+       x = expression("log"[2]*"(fold change)"),
+       y = expression("-log"[10]*"(adj. p-value)")) +
+  theme_local()
+#ggsave("volcano_SRA16.pdf", plot_volcano_v1, height = 7, width = 9)
+```
+
+### Gene annotation
+
+Annotate DGE genes.
+
+```{r annot}
 # Check pseudogenes, ie PRAMEF31P
 mart <- useEnsembl("genes", "hsapiens_gene_ensembl")
 genes <- signif$gene_id
 annotation <- getBM(
-  attributes = c(
-    "ensembl_gene_id",
-    "external_gene_name",
-    "gene_biotype",
-    "description"
-  ),
-  filters = "ensembl_gene_id",
-  values = genes,
+  attributes = c("ensembl_gene_id_version", "external_gene_name", "gene_biotype", "description"),
+  filters = "ensembl_gene_id_version",
+  values = "ENSG00000223972.5",
   mart = mart
 )
+
+# User remart instead of biomaRt
+# Remove ensembl version from genes: ENSG00000223972.5 -> ENSG00000223972
+remart::getBM(attributes = c("hgnc_symbol", "ensembl_gene_id",
+                             "external_gene_name", "transcript_biotype", "gene_biotype",
+                             "description"),
+              filters = "ensembl_gene_id", values = "ENSG00000223972")
+
+
 annotation[grepl("pseudogene", annotation$gene_biotype), ]
 
 
-
-# Annotate signif genes? ie. NLRP
-topTable(fit, adjust = "BH", resort.by = "P")
-
-# Run the PCA (irlba for large matrices)
-#set.seed(207)
-#pca <- prcomp(t(mat_corrected)) #irlba::prcomp_irlba(mat, n, center = FALSE, scale = TRUE)
 ```
 
+### Heatmap
+
+Heatmap of DGEs: genes (rows) x group (cols) and samples
+
+```{r heatmap}
+# Filter the top 20 genes by p-value
+top <- head(rownames(res$table)[order(res$table$PValue)], 20)
+matrix <- cpm(dge2[top, ], log = TRUE, prior.count = 1)
+rownames(matrix) <- dge2$genes$gene_name[match(rownames(matrix), dge2$genes$gene_id)]
+
+# Plot heatmap
+pheatmap::pheatmap(matrix, scale = "row", show_colnames = FALSE,
+                   annotation_col = dge2$samples[, "group", drop = FALSE])
+```
+
+### Multivariate analysis
+
+PCA/UMAP/clustering of significant DGE genes.
+
+```{r pca}
+
+```
